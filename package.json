@@ -1,0 +1,62 @@
+{
+  "name": "commitformat",
+  "version": "1.0.0",
+  "description": "CLI interactif pour créer des commits conventionnels avec validation et statistiques",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "commitformat": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "git",
+    "commit",
+    "conventional-commits",
+    "cli",
+    "changelog",
+    "git-hooks",
+    "commit-message",
+    "semantic-versioning",
+    "developer-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/commitformat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/commitformat/issues"
+  },
+  "homepage": "https://github.com/username/commitformat#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    ".commitformatrc.example"
+  ],
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "cosmiconfig": "^9.0.0",
+    "inquirer": "^9.2.12",
+    "simple-git": "^3.21.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.10.4",
+    "tsup": "^8.5.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

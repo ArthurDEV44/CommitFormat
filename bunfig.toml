@@ -1,0 +1,10 @@
+# Configuration pour Bun
+[install]
+# Compatibilité avec les autres package managers
+production = false
+optional = true
+dev = true
+
+[install.cache]
+# Activer le cache pour des installations plus rapides
+disable = false

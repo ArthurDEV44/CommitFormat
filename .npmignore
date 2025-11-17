@@ -1,0 +1,52 @@
+# Source files - ne pas inclure dans le package npm
+src/
+*.ts
+!*.d.ts
+
+# Configuration
+tsconfig.json
+tsup.config.ts
+
+# Tests
+tests/
+test/
+*.test.ts
+*.spec.ts
+coverage/
+.vitest/
+
+# Development
+.vscode/
+.idea/
+*.log
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Package managers
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+bun.lockb
+.npmrc
+.yarnrc.yml
+bunfig.toml
+pnpm-workspace.yaml
+
+# Scripts de développement
+scripts/
+
+# Documentation de développement
+GETTING_STARTED.md
+PACKAGE_MANAGERS.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Divers
+.DS_Store
+.env
+.env.*

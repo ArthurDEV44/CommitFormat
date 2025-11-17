@@ -1,0 +1,64 @@
+{
+  "types": [
+    {
+      "value": "feat",
+      "name": "feat:     ✨ Nouvelle fonctionnalité",
+      "description": "Une nouvelle fonctionnalité"
+    },
+    {
+      "value": "fix",
+      "name": "fix:      🐛 Correction de bug",
+      "description": "Une correction de bug"
+    },
+    {
+      "value": "docs",
+      "name": "docs:     📝 Documentation",
+      "description": "Changements de documentation uniquement"
+    },
+    {
+      "value": "style",
+      "name": "style:    💄 Style",
+      "description": "Changements qui n'affectent pas le sens du code"
+    },
+    {
+      "value": "refactor",
+      "name": "refactor: ♻️  Refactoring",
+      "description": "Changement de code qui ne corrige pas de bug ni n'ajoute de fonctionnalité"
+    },
+    {
+      "value": "perf",
+      "name": "perf:     ⚡️ Performance",
+      "description": "Amélioration des performances"
+    },
+    {
+      "value": "test",
+      "name": "test:     ✅ Tests",
+      "description": "Ajout ou modification de tests"
+    },
+    {
+      "value": "build",
+      "name": "build:    📦 Build",
+      "description": "Changements qui affectent le système de build"
+    },
+    {
+      "value": "ci",
+      "name": "ci:       👷 CI",
+      "description": "Changements dans les fichiers de configuration CI"
+    },
+    {
+      "value": "chore",
+      "name": "chore:    🔧 Chore",
+      "description": "Autres changements qui ne modifient pas les fichiers src ou test"
+    }
+  ],
+  "scopes": [
+    "auth",
+    "api",
+    "ui",
+    "database",
+    "config"
+  ],
+  "allowCustomScopes": true,
+  "maxSubjectLength": 100,
+  "minSubjectLength": 3
+}
