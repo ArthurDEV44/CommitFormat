@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box } from 'ink';
+import { Box, Text } from 'ink';
+import Spinner from 'ink-spinner';
 import { BranchSelector } from './BranchSelector.js';
 import { FileSelector } from './FileSelector.js';
 import { CommitModeSelector, type CommitMode } from './CommitModeSelector.js';
@@ -10,10 +11,12 @@ import { PushPrompt } from './PushPrompt.js';
 import { SuccessMessage } from './SuccessMessage.js';
 import { StepIndicator } from './StepIndicator.js';
 import type { AIProvider, CommitConfig } from '../types.js';
+import { stageFiles } from '../utils/git.js';
 
 type Step =
   | 'branch'
   | 'files'
+  | 'staging'
   | 'mode'
   | 'ai-generate'
   | 'manual-message'
@@ -24,12 +27,13 @@ type Step =
 const STEP_NAMES: Record<Step, { number: number; name: string; icon: string }> = {
   branch: { number: 1, name: 'Branch Selection', icon: '🌿' },
   files: { number: 2, name: 'File Selection', icon: '📦' },
-  mode: { number: 3, name: 'Generation Mode', icon: '🤖' },
-  'ai-generate': { number: 4, name: 'AI Generation', icon: '✨' },
-  'manual-message': { number: 4, name: 'Commit Message', icon: '💬' },
-  confirm: { number: 5, name: 'Confirmation', icon: '✓' },
-  push: { number: 6, name: 'Push to Remote', icon: '🚀' },
-  success: { number: 7, name: 'Complete', icon: '🎉' },
+  staging: { number: 3, name: 'Staging Files', icon: '📥' },
+  mode: { number: 4, name: 'Generation Mode', icon: '🤖' },
+  'ai-generate': { number: 5, name: 'AI Generation', icon: '✨' },
+  'manual-message': { number: 5, name: 'Commit Message', icon: '💬' },
+  confirm: { number: 6, name: 'Confirmation', icon: '✓' },
+  push: { number: 7, name: 'Push to Remote', icon: '🚀' },
+  success: { number: 8, name: 'Complete', icon: '🎉' },
 };
 
 interface Props {
@@ -49,9 +53,19 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
     setStep('files');
   };
 
-  const handleFilesComplete = (files: string[]) => {
+  const handleFilesComplete = async (files: string[]) => {
     setSelectedFiles(files);
-    setStep('mode');
+    setStep('staging');
+
+    // Stage the files
+    try {
+      await stageFiles(files);
+      setStep('mode');
+    } catch (error) {
+      // Handle error - could add error state here
+      console.error('Error staging files:', error);
+      setStep('mode'); // Continue anyway
+    }
   };
 
   const handleModeComplete = (mode: CommitMode, provider?: AIProvider) => {
@@ -100,7 +114,7 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
 
   // Determine current step info
   const currentStepInfo = STEP_NAMES[step];
-  const totalSteps = 7;
+  const totalSteps = 8;
 
   return (
     <Box flexDirection="column">
@@ -125,7 +139,16 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
           <FileSelector onComplete={handleFilesComplete} />
         )}
 
-        {/* Step 3: Mode Selection */}
+        {/* Step 3: Staging Files */}
+        {step === 'staging' && (
+          <Box padding={1}>
+            <Text color="cyan">
+              <Spinner type="dots" /> Staging {selectedFiles.length} file(s)...
+            </Text>
+          </Box>
+        )}
+
+        {/* Step 4: Mode Selection */}
         {step === 'mode' && (
           <CommitModeSelector
             config={config}
@@ -133,7 +156,7 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
           />
         )}
 
-        {/* Step 4a: AI Generation */}
+        {/* Step 5a: AI Generation */}
         {step === 'ai-generate' && aiProvider && (
           <AICommitGenerator
             provider={aiProvider}
@@ -142,12 +165,12 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
           />
         )}
 
-        {/* Step 4b: Manual Message */}
+        {/* Step 5b: Manual Message */}
         {step === 'manual-message' && (
           <CommitMessageBuilder onComplete={handleManualComplete} />
         )}
 
-        {/* Step 5: Confirmation */}
+        {/* Step 6: Confirmation */}
         {step === 'confirm' && (
           <CommitConfirmation
             message={commitMessage}
@@ -156,7 +179,7 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
           />
         )}
 
-        {/* Step 6: Push */}
+        {/* Step 7: Push */}
         {step === 'push' && (
           <PushPrompt
             branch={selectedBranch}
@@ -164,7 +187,7 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
           />
         )}
 
-        {/* Step 7: Success */}
+        {/* Step 8: Success */}
         {step === 'success' && (
           <SuccessMessage
             title="Commit Created!"
