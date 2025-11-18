@@ -44,10 +44,12 @@
 - Commit message builder
 - Push to remote (optional)
 
-🤖 **AI-Powered Commits**
-- Generate commit messages with AI (Ollama, Mistral, OpenAI)
-- Context-aware suggestions based on your diffs
-- Smart type and scope detection
+🤖 **AI-Powered Commits (Integrated)**
+- Choose AI or Manual generation directly in the workflow
+- Support for Ollama (local), Mistral AI, and OpenAI
+- Auto-detection of available providers
+- Smart fallback to manual if AI unavailable
+- Context-aware suggestions with confidence scoring
 - 100% private with local Ollama
 
 ---
@@ -85,7 +87,7 @@ npx gortex-cli
 
 ## 💫 Usage
 
-### Interactive Commit (Default)
+### Interactive Workflow with Tabs (Default)
 
 Simply run in your Git repository:
 
@@ -99,13 +101,26 @@ Or explicitly:
 gortex commit
 ```
 
-This launches the **premium 5-step workflow**:
+This launches the **premium interactive workflow with tabs**:
 
+**🔑 Credentials Tab:**
+- View AI API keys status (Mistral, OpenAI)
+- Instructions for configuration
+- Environment variable support
+
+**📝 Commit Tab (7-step workflow):**
 1. 🌿 **Branch Selection** - Choose or create a branch
 2. 📦 **File Selection** - Preview and select files to stage
-3. 💬 **Commit Message** - Build a conventional commit message
-4. ✓ **Confirmation** - Review and confirm your commit
-5. 🚀 **Push** - Optionally push to remote
+3. 🤖 **Generation Mode** - Choose AI (Ollama/Mistral/OpenAI) or Manual
+4. ✨ **Message Creation** - AI-generated or manual based on your choice
+5. ✓ **Confirmation** - Review and confirm your commit
+6. 🚀 **Push** - Optionally push to remote
+7. 🎉 **Success** - Completion summary
+
+**Navigation:**
+- `Tab` or `→` to switch between tabs
+- `1-2` for direct tab access
+- `h/l` for vim-style navigation
 
 ### Git Hooks
 
@@ -131,24 +146,23 @@ gortex stats
 gortex stats -n 200
 ```
 
-### 🤖 AI-Powered Commit Messages (NEW!)
+### 🤖 AI-Powered Commit Messages (Integrated!)
 
-Generate commit messages automatically using AI:
+AI generation is now **integrated directly into the main workflow**!
 
-```bash
-# Stage your files first
-git add .
-
-# Generate AI suggestion
-gortex ai-suggest
-```
+When you run `gortex commit`, you'll be able to choose at step 3:
+- 🤖 **AI Generation** (Ollama/Mistral/OpenAI) - if available
+- ✍️ **Manual** - classic guided workflow
 
 **Supported AI Providers:**
 - **Ollama** (local, free, private) - Recommended for most users
 - **Mistral AI** (cloud, API key required)
 - **OpenAI** (cloud, API key required)
 
-See [AI Setup Guide](docs/AI_SETUP.md) for detailed configuration.
+**Smart Fallback:**
+- If no AI provider is available → Manual mode automatically
+- If you reject AI suggestion → Falls back to manual
+- Always a smooth experience!
 
 **Quick Start with Ollama:**
 ```bash
@@ -158,7 +172,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 # Pull the model
 ollama pull mistral:7b
 
-# Configure Gortex
+# Configure Gortex (optional, works out of the box)
 echo '{
   "ai": {
     "enabled": true,
@@ -168,8 +182,11 @@ echo '{
 
 # Use it!
 git add .
-gortex ai-suggest
+gortex commit
+# → Choose "AI - Ollama" at step 3
 ```
+
+**Note:** The standalone `gortex ai-suggest` command is deprecated but still works.
 
 ### Help
 
