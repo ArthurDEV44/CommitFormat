@@ -44,6 +44,12 @@
 - Commit message builder
 - Push to remote (optional)
 
+🤖 **AI-Powered Commits**
+- Generate commit messages with AI (Ollama, Mistral, OpenAI)
+- Context-aware suggestions based on your diffs
+- Smart type and scope detection
+- 100% private with local Ollama
+
 ---
 
 ## 🚀 Installation
@@ -123,6 +129,46 @@ View commit statistics:
 gortex stats
 # or analyze last 200 commits
 gortex stats -n 200
+```
+
+### 🤖 AI-Powered Commit Messages (NEW!)
+
+Generate commit messages automatically using AI:
+
+```bash
+# Stage your files first
+git add .
+
+# Generate AI suggestion
+gortex ai-suggest
+```
+
+**Supported AI Providers:**
+- **Ollama** (local, free, private) - Recommended for most users
+- **Mistral AI** (cloud, API key required)
+- **OpenAI** (cloud, API key required)
+
+See [AI Setup Guide](docs/AI_SETUP.md) for detailed configuration.
+
+**Quick Start with Ollama:**
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull the model
+ollama pull mistral:7b
+
+# Configure Gortex
+echo '{
+  "ai": {
+    "enabled": true,
+    "provider": "ollama"
+  }
+}' > .gortexrc
+
+# Use it!
+git add .
+gortex ai-suggest
 ```
 
 ### Help
