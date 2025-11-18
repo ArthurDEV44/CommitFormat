@@ -96,7 +96,7 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({ onComplete }) =>
           message="Select or create a branch"
           items={[
             ...branches.map(b => ({
-              label: b === currentBranch ? `${b} ✓` : b,
+              label: b === currentBranch ? `${b} ${icons.success}` : b,
               value: b,
               description: b === currentBranch ? 'Current branch' : undefined,
             })),
@@ -123,7 +123,7 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({ onComplete }) =>
       {step === 'confirm' && (
         <Box flexDirection="column">
           <Box marginBottom={1}>
-            <Text color="green">✓ Selected: </Text>
+            <Text color="green">{icons.success} Selected: </Text>
             <Gradient name="summer">
               <Text bold>{selectedBranch}</Text>
             </Gradient>

@@ -4,6 +4,7 @@ import { Confirm } from '../ui/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { getGitDir } from '../utils/git.js';
+import { icons } from '../theme/colors.js';
 
 const COMMIT_MSG_HOOK = `#!/bin/sh
 # gortex hook - valide le format des commits
@@ -17,7 +18,7 @@ pattern="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\(.+\\
 
 if ! echo "$commit_msg" | grep -qE "$pattern"; then
     echo ""
-    echo "❌ Erreur: Le message de commit ne suit pas le format conventionnel"
+    echo "✖ Erreur: Le message de commit ne suit pas le format conventionnel"
     echo ""
     echo "Format attendu: <type>(<scope>): <description>"
     echo ""
@@ -28,7 +29,7 @@ if ! echo "$commit_msg" | grep -qE "$pattern"; then
     echo "  fix: resolve crash on startup"
     echo "  docs(readme): update installation steps"
     echo ""
-    echo "💡 Utilisez 'npx gortex' pour créer un commit guidé"
+    echo "ℹ Utilisez 'npx gortex' pour créer un commit guidé"
     echo ""
     exit 1
 fi
@@ -106,7 +107,7 @@ export const HooksInstaller: React.FC<HooksInstallerProps> = ({ onComplete }) =>
 
       {hookExists && (
         <Box marginBottom={1}>
-          <Text color="yellow">⚠️  Un hook commit-msg existe déjà</Text>
+          <Text color="yellow">{icons.warning} Un hook commit-msg existe déjà</Text>
         </Box>
       )}
 

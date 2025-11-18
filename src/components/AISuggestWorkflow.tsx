@@ -232,7 +232,7 @@ export function AISuggestWorkflow({ config }: Props) {
       <Box flexDirection="column" padding={1}>
         <Box>
           <Text color="green" bold>
-            ✓ Commit créé avec succès !
+            {icons.success} Commit créé avec succès !
           </Text>
         </Box>
         <Box marginTop={1}>
@@ -280,8 +280,8 @@ export function AISuggestWorkflow({ config }: Props) {
 }
 
 function getConfidenceEmoji(confidence: number): string {
-  if (confidence >= 80) return '🎯';
-  if (confidence >= 60) return '👍';
-  if (confidence >= 40) return '🤔';
-  return '⚠️';
+  if (confidence >= 80) return icons.star;
+  if (confidence >= 60) return icons.success;
+  if (confidence >= 40) return icons.info;
+  return icons.warning;
 }

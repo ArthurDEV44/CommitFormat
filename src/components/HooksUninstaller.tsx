@@ -4,6 +4,7 @@ import { Confirm } from '../ui/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { getGitDir } from '../utils/git.js';
+import { icons } from '../theme/colors.js';
 
 interface HooksUninstallerProps {
   onComplete: (success: boolean) => void;
@@ -64,7 +65,7 @@ export const HooksUninstaller: React.FC<HooksUninstallerProps> = ({ onComplete }
   if (!hookExists) {
     return (
       <Box flexDirection="column">
-        <Text color="yellow">⚠️  Aucun hook commit-msg trouvé</Text>
+        <Text color="yellow">{icons.warning}Aucun hook commit-msg trouvé</Text>
       </Box>
     );
   }
@@ -81,7 +82,7 @@ export const HooksUninstaller: React.FC<HooksUninstallerProps> = ({ onComplete }
 
       {!isGortexHook && (
         <Box marginBottom={1}>
-          <Text color="yellow">⚠️  Le hook commit-msg n'a pas été créé par gortex</Text>
+          <Text color="yellow">{icons.warning}Le hook commit-msg n'a pas été créé par gortex</Text>
         </Box>
       )}
 

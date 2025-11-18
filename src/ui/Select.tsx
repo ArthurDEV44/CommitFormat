@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import Gradient from 'ink-gradient';
+import { icons } from '../theme/colors.js';
 
 export interface SelectItem {
   label: string;
@@ -50,7 +51,7 @@ export const Select: React.FC<SelectProps> = ({ message, items, initialIndex = 0
               <Box>
                 {isSelected ? (
                   <Gradient name="passion">
-                    <Text bold>❯ </Text>
+                    <Text bold>{icons.pointer} </Text>
                   </Gradient>
                 ) : (
                   <Text dimColor>  </Text>

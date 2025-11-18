@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import Gradient from 'ink-gradient';
+import { icons } from '../theme/colors.js';
 
 interface ConfirmProps {
   message: string;
@@ -40,14 +41,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ message, defaultValue = true, 
         {value ? (
           <Box>
             <Gradient name="summer">
-              <Text bold>✓ Yes</Text>
+              <Text bold>{icons.success} Yes</Text>
             </Gradient>
             <Text dimColor> / No</Text>
           </Box>
         ) : (
           <Box>
             <Text dimColor>Yes / </Text>
-            <Text color="red" bold>✖ No</Text>
+            <Text color="red" bold>{icons.error} No</Text>
           </Box>
         )}
       </Box>

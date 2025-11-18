@@ -85,7 +85,7 @@ export const PushPrompt: React.FC<PushPromptProps> = ({ branch, onComplete }) =>
         <Box marginBottom={1}>
           <Text bold color="blue">{icons.push} Étape 5/5: Push vers le remote</Text>
         </Box>
-        <Text color="yellow">⚠️  Aucun remote configuré, impossible de push</Text>
+        <Text color="yellow">{icons.warning} Aucun remote configuré, impossible de push</Text>
         <Box marginTop={1}>
           <Text dimColor>{icons.info} Configurez un remote avec : git remote add origin &lt;url&gt;</Text>
         </Box>
@@ -129,7 +129,7 @@ export const PushPrompt: React.FC<PushPromptProps> = ({ branch, onComplete }) =>
         <Box marginBottom={1}>
           <Text bold color="blue">{icons.push} Étape 5/5: Push vers le remote</Text>
         </Box>
-        <Text color="green">✓ Push réussi vers {remoteUrl}</Text>
+        <Text color="green">{icons.success} Push réussi vers {remoteUrl}</Text>
       </Box>
     );
   }

@@ -114,7 +114,7 @@ export const AICommitGenerator: React.FC<Props> = ({ provider, config, onComplet
         >
           <Box marginBottom={1}>
             <Text color="red" bold>
-              ✖ Erreur lors de la génération
+              {icons.error} Erreur lors de la génération
             </Text>
           </Box>
 
@@ -206,8 +206,8 @@ export const AICommitGenerator: React.FC<Props> = ({ provider, config, onComplet
 };
 
 function getConfidenceEmoji(confidence: number): string {
-  if (confidence >= 80) return '🎯';
-  if (confidence >= 60) return '👍';
-  if (confidence >= 40) return '🤔';
-  return '⚠️';
+  if (confidence >= 80) return icons.star;
+  if (confidence >= 60) return icons.success;
+  if (confidence >= 40) return icons.info;
+  return icons.warning;
 }

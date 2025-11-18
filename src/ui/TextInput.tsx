@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Text } from 'ink';
 import InkTextInput from 'ink-text-input';
 import Gradient from 'ink-gradient';
+import { icons } from '../theme/colors.js';
 
 interface TextInputProps {
   message: string;
@@ -48,7 +49,7 @@ export const TextInput: React.FC<TextInputProps> = ({
         paddingY={1}
       >
         <Gradient name="passion">
-          <Text bold>❯ </Text>
+          <Text bold>{icons.pointer} </Text>
         </Gradient>
         <InkTextInput
           value={value}
@@ -60,7 +61,7 @@ export const TextInput: React.FC<TextInputProps> = ({
 
       {error && (
         <Box marginTop={1}>
-          <Text color="red">✖ {error}</Text>
+          <Text color="red">{icons.error} {error}</Text>
         </Box>
       )}
 

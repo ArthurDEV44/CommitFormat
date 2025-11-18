@@ -1,3 +1,5 @@
+import { commitIcons } from './theme/colors.js';
+
 export interface CommitType {
   value: string;
   name: string;
@@ -84,57 +86,57 @@ export interface AIGeneratedCommit {
 export const DEFAULT_TYPES: CommitType[] = [
   {
     value: 'feat',
-    name: 'feat:     ✨ Nouvelle fonctionnalité',
+    name: `feat:     ${commitIcons.feat} Nouvelle fonctionnalité`,
     description: 'Une nouvelle fonctionnalité',
   },
   {
     value: 'fix',
-    name: 'fix:      🐛 Correction de bug',
+    name: `fix:      ${commitIcons.fix} Correction de bug`,
     description: 'Une correction de bug',
   },
   {
     value: 'docs',
-    name: 'docs:     📝 Documentation',
+    name: `docs:     ${commitIcons.docs} Documentation`,
     description: 'Changements de documentation uniquement',
   },
   {
     value: 'style',
-    name: 'style:    💄 Style',
+    name: `style:    ${commitIcons.style} Style`,
     description: 'Changements qui n\'affectent pas le sens du code (espaces, formatage, etc.)',
   },
   {
     value: 'refactor',
-    name: 'refactor: ♻️  Refactoring',
+    name: `refactor: ${commitIcons.refactor} Refactoring`,
     description: 'Changement de code qui ne corrige pas de bug ni n\'ajoute de fonctionnalité',
   },
   {
     value: 'perf',
-    name: 'perf:     ⚡️ Performance',
+    name: `perf:     ${commitIcons.perf} Performance`,
     description: 'Amélioration des performances',
   },
   {
     value: 'test',
-    name: 'test:     ✅ Tests',
+    name: `test:     ${commitIcons.test} Tests`,
     description: 'Ajout ou modification de tests',
   },
   {
     value: 'build',
-    name: 'build:    📦 Build',
+    name: `build:    ${commitIcons.build} Build`,
     description: 'Changements qui affectent le système de build ou les dépendances',
   },
   {
     value: 'ci',
-    name: 'ci:       👷 CI',
+    name: `ci:       ${commitIcons.ci} CI`,
     description: 'Changements dans les fichiers de configuration CI',
   },
   {
     value: 'chore',
-    name: 'chore:    🔧 Chore',
+    name: `chore:    ${commitIcons.chore} Chore`,
     description: 'Autres changements qui ne modifient pas les fichiers src ou test',
   },
   {
     value: 'revert',
-    name: 'revert:   ⏪ Revert',
+    name: `revert:   ${commitIcons.revert} Revert`,
     description: 'Annulation d\'un commit précédent',
   },
 ];

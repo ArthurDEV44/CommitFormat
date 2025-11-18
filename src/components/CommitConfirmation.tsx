@@ -4,6 +4,7 @@ import Gradient from 'ink-gradient';
 import { Confirm } from '../ui/index.js';
 import { LoadingSpinner } from './LoadingSpinner.js';
 import { stageFiles, createCommit } from '../utils/git.js';
+import { icons } from '../theme/colors.js';
 
 interface CommitConfirmationProps {
   message: string;
@@ -44,7 +45,7 @@ export const CommitConfirmation: React.FC<CommitConfirmationProps> = ({
   if (error) {
     return (
       <Box flexDirection="column">
-        <Text color="red">✖ Error: {error}</Text>
+        <Text color="red">{icons.error} Error: {error}</Text>
       </Box>
     );
   }
@@ -61,7 +62,7 @@ export const CommitConfirmation: React.FC<CommitConfirmationProps> = ({
       >
         <Box marginBottom={1}>
           <Gradient name="cristal">
-            <Text bold>📋 Commit Preview</Text>
+            <Text bold>{icons.file} Commit Preview</Text>
           </Gradient>
         </Box>
 
@@ -69,7 +70,7 @@ export const CommitConfirmation: React.FC<CommitConfirmationProps> = ({
           <Text dimColor>Files ({files.length}):</Text>
           {files.slice(0, 3).map((file, i) => (
             <Box key={i} marginLeft={2}>
-              <Text color="green">✓</Text>
+              <Text color="green">{icons.success}</Text>
               <Text dimColor> {file}</Text>
             </Box>
           ))}
