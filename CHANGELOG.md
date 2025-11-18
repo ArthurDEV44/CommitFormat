@@ -4,22 +4,55 @@ All notable changes to Gortex CLI will be documented in this file.
 
 ## [3.0.1] - 2025-11-18
 
+### ✨ New Features
+
+#### GitHub OAuth Authentication (MAJOR)
+- **Added**: Full GitHub OAuth Device Flow integration for automatic push to HTTPS remotes
+- **How it works**:
+  - Automatic detection of HTTPS vs SSH remotes
+  - GitHub Device Flow authentication (same as `gh` CLI)
+  - Secure credential storage in `~/.gortex-credentials` (mode 600)
+  - Automatic token validation and refresh
+  - One-time setup, works indefinitely
+- **User Experience**:
+  - First push to HTTPS: Gortex proposes GitHub authentication
+  - Device Flow: Open URL, enter code, authorize → Done
+  - Subsequent pushes: Automatic using saved token
+  - Credentials tab shows authentication status
+- **Benefits**:
+  - ✅ No SSH setup required
+  - ✅ No credential helper configuration needed
+  - ✅ Works in restricted environments
+  - ✅ Secure (OAuth tokens, not passwords)
+  - ✅ Same experience as GitHub CLI
+- **New Files**:
+  - `src/auth/github-oauth.ts` - OAuth authentication service
+  - `src/auth/credential-store.ts` - Secure credential storage
+  - `src/components/GitHubAuth.tsx` - Device Flow UI component
+  - `GITHUB_OAUTH.md` - Complete documentation
+- **Modified Files**:
+  - `src/utils/git.ts` - Added `pushWithGitHubToken()` function
+  - `src/components/PushPrompt.tsx` - Integrated OAuth flow
+  - `src/components/CredentialsTab.tsx` - Display GitHub auth status
+- **Dependencies**: Added `@octokit/auth-oauth-device` and `@octokit/rest`
+- **Documentation**: See `GITHUB_OAUTH.md` for complete guide
+
 ### 🐛 Bug Fixes
 
 #### Push Authentication Blocking (CRITICAL)
 - **Fixed**: Push step no longer hangs when using HTTPS remotes that require authentication
 - **Root Cause**: Ink framework cannot handle interactive authentication prompts from child git processes
-- **Solution**: Detect HTTPS remotes and display guidance instead of attempting interactive push
-- **Impact**: Workflow now completes successfully for HTTPS remotes
+- **Solution**: Integrated GitHub OAuth Device Flow for seamless HTTPS authentication
+- **Impact**: Workflow now completes successfully for HTTPS remotes with automatic push
 - **Changes**:
   - Added `getRemoteUrl()` and `isHttpsRemote()` utility functions in `src/utils/git.ts`
-  - Enhanced `PushPrompt` component to detect and handle HTTPS remotes gracefully
-  - Display clear instructions for manual push: `git push origin <branch>`
-  - Provide guidance for long-term solutions (SSH setup or credential helper)
+  - Enhanced `PushPrompt` component to detect HTTPS/SSH and handle appropriately
+  - Integrated GitHub OAuth authentication workflow
+  - Fallback to manual push instructions if OAuth is declined
 - **Files Modified**:
-  - `src/utils/git.ts` - Added remote URL detection functions
-  - `src/components/PushPrompt.tsx` - Added HTTPS detection and guidance display
-- **Documentation**: See `HTTPS_PUSH_FIX.md` for complete details
+  - `src/utils/git.ts` - Added remote URL detection and authenticated push
+  - `src/components/PushPrompt.tsx` - Complete OAuth integration
+- **Documentation**: See `HTTPS_PUSH_FIX.md` and `GITHUB_OAUTH.md` for details
 
 ### 📖 User Experience
 
