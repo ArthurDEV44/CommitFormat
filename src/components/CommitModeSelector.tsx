@@ -113,7 +113,7 @@ export const CommitModeSelector: React.FC<Props> = ({ config, onComplete }) => {
   const options: SelectItem[] = [
     ...aiProviders,
     {
-      label: '✍️  Manuel',
+      label: `${icons.step} Manuel`,
       value: 'manual',
       description: 'Créer le message manuellement (mode classique)',
     },
@@ -148,7 +148,7 @@ export const CommitModeSelector: React.FC<Props> = ({ config, onComplete }) => {
         >
           <Box marginBottom={1}>
             <Text color="yellow" bold>
-              ⚠️ Aucun provider AI disponible
+              {icons.warning} Aucun provider AI disponible
             </Text>
           </Box>
 

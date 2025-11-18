@@ -4,6 +4,7 @@ import { Select, TextInput, type SelectItem } from '../ui/index.js';
 import { loadConfig } from '../utils/config.js';
 import { formatCommitMessage } from '../utils/validate.js';
 import type { CommitConfig, CommitAnswers } from '../types.js';
+import { icons } from '../theme/colors.js';
 
 interface CommitMessageBuilderProps {
   onComplete: (message: string) => void;
@@ -96,7 +97,7 @@ export const CommitMessageBuilder: React.FC<CommitMessageBuilderProps> = ({ onCo
   return (
     <Box flexDirection="column">
       <Box marginBottom={1}>
-        <Text bold color="blue">💬 Étape 3/5: Message de commit</Text>
+        <Text bold color="blue">{icons.step} Étape 3/5: Message de commit</Text>
       </Box>
 
       {step === 'type' && (

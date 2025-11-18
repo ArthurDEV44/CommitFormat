@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import Gradient from 'ink-gradient';
+import { icons } from '../theme/colors.js';
 
 export interface MultiSelectItem {
   label: string;
@@ -84,7 +85,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               <Box>
                 {isCursor ? (
                   <Gradient name="passion">
-                    <Text bold>❯ </Text>
+                    <Text bold>{icons.pointer} </Text>
                   </Gradient>
                 ) : (
                   <Text dimColor>  </Text>

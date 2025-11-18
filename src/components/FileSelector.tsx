@@ -71,7 +71,7 @@ export const FileSelector: React.FC<FileSelectorProps> = ({ onComplete }) => {
               description: `Stage all ${files.length} changed file${files.length > 1 ? 's' : ''}`,
             },
             {
-              label: '🎯 Select files',
+              label: `${icons.filter} Select files`,
               value: 'select',
               description: 'Choose specific files to stage',
             },

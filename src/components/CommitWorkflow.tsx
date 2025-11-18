@@ -9,15 +9,16 @@ import { CommitConfirmation } from './CommitConfirmation.js';
 import { PushPrompt } from './PushPrompt.js';
 import { SuccessMessage } from './SuccessMessage.js';
 import { ErrorMessage } from './ErrorMessage.js';
+import { icons } from '../theme/colors.js';
 
 type WorkflowStep = 'branch' | 'files' | 'message' | 'confirm' | 'push' | 'success' | 'cancelled';
 
 const STEP_CONFIG = {
-  branch: { number: 1, name: 'Branch Selection', icon: '🌿' },
-  files: { number: 2, name: 'File Selection', icon: '📦' },
-  message: { number: 3, name: 'Commit Message', icon: '💬' },
-  confirm: { number: 4, name: 'Confirmation', icon: '✓' },
-  push: { number: 5, name: 'Push to Remote', icon: '🚀' },
+  branch: { number: 1, name: 'Branch Selection', icon: icons.branch },
+  files: { number: 2, name: 'File Selection', icon: icons.fileChanged },
+  message: { number: 3, name: 'Commit Message', icon: icons.step },
+  confirm: { number: 4, name: 'Confirmation', icon: icons.success },
+  push: { number: 5, name: 'Push to Remote', icon: icons.push },
 };
 
 export const CommitWorkflow: React.FC = () => {
@@ -90,7 +91,7 @@ export const CommitWorkflow: React.FC = () => {
               `Files: ${selectedFiles.length} changed`,
               `Message: ${commitMessage.split('\n')[0]}`,
             ]}
-            icon="✓"
+            icon={icons.success}
           />
         )}
         {step === 'cancelled' && (
