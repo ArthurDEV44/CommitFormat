@@ -3,8 +3,9 @@ import { Octokit } from '@octokit/rest';
 import { getCredentialStore, saveCredentials, clearCredentials, type StoredCredentials } from './credential-store.js';
 
 // GitHub OAuth App Client ID pour Gortex CLI
-// Note: Pour la production, ceci devrait être une vraie OAuth App enregistrée sur GitHub
-const GITHUB_CLIENT_ID = 'Ov23li8pO3QoYZ5vRDtY'; // Placeholder - à remplacer par une vraie app
+// Peut être configuré via la variable d'environnement GORTEX_GITHUB_CLIENT_ID
+// Pour créer votre propre OAuth App, voir SETUP_GITHUB_OAUTH.md
+const GITHUB_CLIENT_ID = process.env.GORTEX_GITHUB_CLIENT_ID || 'Ov23li8pO3QoYZ5vRDtY'; // Placeholder
 
 export interface DeviceFlowResult {
   verification_uri: string;
@@ -26,6 +27,13 @@ export interface GitHubAuthResult {
 export async function authenticateWithDeviceFlow(
   onVerification: (verification: DeviceFlowResult) => void
 ): Promise<GitHubAuthResult> {
+  // Vérifier que le Client ID est configuré
+  if (!GITHUB_CLIENT_ID || GITHUB_CLIENT_ID === 'Ov23li8pO3QoYZ5vRDtY') {
+    throw new Error(
+      'GitHub OAuth Client ID not configured. Please set GORTEX_GITHUB_CLIENT_ID environment variable or see SETUP_GITHUB_OAUTH.md'
+    );
+  }
+
   const auth = createOAuthDeviceAuth({
     clientType: 'oauth-app',
     clientId: GITHUB_CLIENT_ID,
@@ -67,6 +75,12 @@ export async function authenticateWithDeviceFlow(
       email: primaryEmail,
     };
   } catch (error: any) {
+    // Améliorer le message d'erreur si c'est une erreur "Not Found"
+    if (error.message?.includes('Not Found') || error.message?.includes('404')) {
+      throw new Error(
+        'GitHub OAuth App not found or Device Flow not enabled. Please check SETUP_GITHUB_OAUTH.md for configuration instructions.'
+      );
+    }
     throw new Error(`GitHub authorization failed: ${error.message}`);
   }
 }
