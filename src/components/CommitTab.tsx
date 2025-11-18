@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import Spinner from 'ink-spinner';
 import { BranchSelector } from './BranchSelector.js';
@@ -9,11 +9,16 @@ import { CommitMessageBuilder } from './CommitMessageBuilder.js';
 import { CommitConfirmation } from './CommitConfirmation.js';
 import { PushPrompt } from './PushPrompt.js';
 import { SuccessMessage } from './SuccessMessage.js';
+import { ContinuePrompt } from './ContinuePrompt.js';
+import { CommitWelcome } from './CommitWelcome.js';
 import { StepIndicator } from './StepIndicator.js';
 import type { AIProvider, CommitConfig } from '../types.js';
 import { stageFiles } from '../utils/git.js';
+import { useApp } from 'ink';
+import { icons, commitIcons } from '../theme/colors.js';
 
 type Step =
+  | 'idle'
   | 'branch'
   | 'files'
   | 'staging'
@@ -22,31 +27,40 @@ type Step =
   | 'manual-message'
   | 'confirm'
   | 'push'
-  | 'success';
+  | 'success'
+  | 'continue';
 
 const STEP_NAMES: Record<Step, { number: number; name: string; icon: string }> = {
-  branch: { number: 1, name: 'Branch Selection', icon: '🌿' },
-  files: { number: 2, name: 'File Selection', icon: '📦' },
-  staging: { number: 3, name: 'Staging Files', icon: '📥' },
-  mode: { number: 4, name: 'Generation Mode', icon: '🤖' },
-  'ai-generate': { number: 5, name: 'AI Generation', icon: '✨' },
-  'manual-message': { number: 5, name: 'Commit Message', icon: '💬' },
-  confirm: { number: 6, name: 'Confirmation', icon: '✓' },
-  push: { number: 7, name: 'Push to Remote', icon: '🚀' },
-  success: { number: 8, name: 'Complete', icon: '🎉' },
+  idle: { number: 0, name: 'Ready', icon: icons.circle },
+  branch: { number: 1, name: 'Branch Selection', icon: icons.branch },
+  files: { number: 2, name: 'File Selection', icon: icons.fileChanged },
+  staging: { number: 3, name: 'Staging Files', icon: icons.fileAdded },
+  mode: { number: 4, name: 'Generation Mode', icon: icons.settings },
+  'ai-generate': { number: 5, name: 'AI Generation', icon: commitIcons.feat },
+  'manual-message': { number: 5, name: 'Commit Message', icon: icons.step },
+  confirm: { number: 6, name: 'Confirmation', icon: icons.success },
+  push: { number: 7, name: 'Push to Remote', icon: icons.push },
+  success: { number: 8, name: 'Complete', icon: icons.completed },
+  continue: { number: 9, name: 'Continue', icon: icons.arrowRight },
 };
 
 interface Props {
   config: CommitConfig;
+  onWorkflowStateChange?: (isInWorkflow: boolean) => void;
 }
 
-export const CommitTab: React.FC<Props> = ({ config }) => {
-  const [step, setStep] = useState<Step>('branch');
+export const CommitTab: React.FC<Props> = ({ config, onWorkflowStateChange }) => {
+  const { exit } = useApp();
+  const [step, setStep] = useState<Step>('idle');
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [commitMode, setCommitMode] = useState<CommitMode>('manual');
   const [aiProvider, setAIProvider] = useState<AIProvider | undefined>();
   const [commitMessage, setCommitMessage] = useState<string>('');
+
+  const handleStartWorkflow = () => {
+    setStep('branch');
+  };
 
   const handleBranchComplete = (branch: string) => {
     setSelectedBranch(branch);
@@ -110,7 +124,33 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
 
   const handlePushComplete = () => {
     setStep('success');
+    // Automatically move to continue prompt after a short delay
+    setTimeout(() => {
+      setStep('continue');
+    }, 2000);
   };
+
+  const handleContinueComplete = (shouldContinue: boolean) => {
+    if (shouldContinue) {
+      // Reset all state and go back to idle
+      setSelectedBranch('');
+      setSelectedFiles([]);
+      setCommitMode('manual');
+      setAIProvider(undefined);
+      setCommitMessage('');
+      setStep('idle');
+    } else {
+      // Exit the application
+      exit();
+    }
+  };
+
+  // Notify parent when workflow state changes
+  useEffect(() => {
+    // Tab navigation should be enabled only in 'idle' and 'continue' states
+    const isInWorkflow = step !== 'idle' && step !== 'continue';
+    onWorkflowStateChange?.(isInWorkflow);
+  }, [step, onWorkflowStateChange]);
 
   // Determine current step info
   const currentStepInfo = STEP_NAMES[step];
@@ -119,7 +159,7 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
   return (
     <Box flexDirection="column">
       {/* Step Indicator */}
-      {step !== 'success' && (
+      {step !== 'idle' && step !== 'success' && step !== 'continue' && (
         <StepIndicator
           currentStep={currentStepInfo.number}
           totalSteps={totalSteps}
@@ -129,6 +169,11 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
       )}
 
       <Box marginTop={1}>
+        {/* Step 0: Idle/Welcome */}
+        {step === 'idle' && (
+          <CommitWelcome onStart={handleStartWorkflow} />
+        )}
+
         {/* Step 1: Branch Selection */}
         {step === 'branch' && (
           <BranchSelector onComplete={handleBranchComplete} />
@@ -200,6 +245,11 @@ export const CommitTab: React.FC<Props> = ({ config }) => {
             ]}
             icon="✓"
           />
+        )}
+
+        {/* Step 9: Continue Prompt */}
+        {step === 'continue' && (
+          <ContinuePrompt onComplete={handleContinueComplete} />
         )}
       </Box>
     </Box>

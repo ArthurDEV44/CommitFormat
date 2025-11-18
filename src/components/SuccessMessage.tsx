@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import Gradient from 'ink-gradient';
+import { colors, createGradient, icons } from '../theme/colors.js';
 
 interface SuccessMessageProps {
   title: string;
@@ -13,7 +14,7 @@ export const SuccessMessage: React.FC<SuccessMessageProps> = ({
   title,
   subtitle,
   details,
-  icon = '✓',
+  icon = icons.success,
 }) => {
   const [show, setShow] = useState(false);
 
@@ -28,17 +29,15 @@ export const SuccessMessage: React.FC<SuccessMessageProps> = ({
     <Box flexDirection="column" marginY={1}>
       <Box
         borderStyle="round"
-        borderColor="green"
+        borderColor={colors.success}
         paddingX={2}
         paddingY={1}
         flexDirection="column"
       >
         <Box marginBottom={1} justifyContent="center">
-          <Gradient name="summer">
-            <Text bold>
-              {icon} {title}
-            </Text>
-          </Gradient>
+          <Text bold color={colors.success}>
+            {createGradient.gold(`${icon} ${title}`)}
+          </Text>
         </Box>
 
         {subtitle && (
@@ -51,7 +50,7 @@ export const SuccessMessage: React.FC<SuccessMessageProps> = ({
           <Box flexDirection="column" marginTop={1}>
             {details.map((detail, i) => (
               <Box key={i}>
-                <Text color="green">▸</Text>
+                <Text color={colors.success}>{icons.pointer}</Text>
                 <Text dimColor> {detail}</Text>
               </Box>
             ))}
