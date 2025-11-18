@@ -225,6 +225,47 @@ export async function pushToRemote(remote: string, branch: string, setUpstream: 
 }
 
 /**
+ * Push avec authentification GitHub OAuth (pour remote HTTPS)
+ */
+export async function pushWithGitHubToken(
+  token: string,
+  remote: string,
+  branch: string,
+  setUpstream: boolean = false
+): Promise<void> {
+  // Récupérer l'URL du remote
+  const remoteUrl = await getRemoteUrl(remote);
+  if (!remoteUrl) {
+    throw new Error(`Remote ${remote} not found`);
+  }
+
+  // Construire l'URL avec le token
+  // Format: https://x-access-token:<token>@github.com/user/repo.git
+  let authenticatedUrl: string;
+  if (remoteUrl.startsWith('https://github.com/')) {
+    authenticatedUrl = remoteUrl.replace(
+      'https://github.com/',
+      `https://x-access-token:${token}@github.com/`
+    );
+  } else if (remoteUrl.startsWith('https://')) {
+    // Autre provider Git (GitLab, Bitbucket, etc.)
+    const urlObj = new URL(remoteUrl);
+    urlObj.username = 'x-access-token';
+    urlObj.password = token;
+    authenticatedUrl = urlObj.toString();
+  } else {
+    throw new Error('Only HTTPS remotes are supported with token authentication');
+  }
+
+  // Pusher avec l'URL authentifiée
+  if (setUpstream) {
+    await git.push(authenticatedUrl, branch, ['-u']);
+  } else {
+    await git.push(authenticatedUrl, branch);
+  }
+}
+
+/**
  * Vérifie si la branche actuelle track un remote
  */
 export async function hasUpstream(): Promise<boolean> {

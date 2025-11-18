@@ -7,6 +7,7 @@ import type { AIConfig } from '../types.js';
 import { MistralProvider } from '../ai/providers/mistral.js';
 import { OpenAIProvider } from '../ai/providers/openai.js';
 import { loadConfig } from '../utils/config.js';
+import { getAuthenticatedUser, logout } from '../auth/github-oauth.js';
 import { cosmiconfig } from 'cosmiconfig';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
@@ -30,11 +31,12 @@ export const CredentialsTab: React.FC<Props> = ({ onConfigUpdate }) => {
   const [step, setStep] = useState<Step>('menu');
   const [mistralKey, setMistralKey] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
+  const [githubUser, setGithubUser] = useState<{ username: string; email: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [testStatus, setTestStatus] = useState<'testing' | 'success' | 'failed'>('testing');
   const [currentConfig, setCurrentConfig] = useState<AIConfig | null>(null);
 
-  // Load existing config
+  // Load existing config and GitHub auth status
   useEffect(() => {
     loadConfig().then((config) => {
       if (config.ai) {
@@ -42,6 +44,10 @@ export const CredentialsTab: React.FC<Props> = ({ onConfigUpdate }) => {
         setMistralKey(config.ai.mistral?.apiKey || '');
         setOpenaiKey(config.ai.openai?.apiKey || '');
       }
+    });
+
+    getAuthenticatedUser().then((user) => {
+      setGithubUser(user);
     });
   }, []);
 
@@ -310,12 +316,51 @@ export const CredentialsTab: React.FC<Props> = ({ onConfigUpdate }) => {
       >
         <Box marginBottom={1}>
           <Text bold color="cyan">
-            🔑 Gestion des Credentials AI
+            🔑 Gestion des Credentials
           </Text>
         </Box>
 
-        {/* Status actuel */}
+        {/* GitHub Status */}
+        <Box flexDirection="column" marginBottom={2}>
+          <Box marginBottom={1}>
+            <Text bold>GitHub Authentication</Text>
+          </Box>
+          <Box>
+            <Text>
+              Statut:{' '}
+              {githubUser ? (
+                <Text color="green">✓ Authentifié</Text>
+              ) : (
+                <Text color="yellow">⚠ Non authentifié</Text>
+              )}
+            </Text>
+          </Box>
+          {githubUser && (
+            <>
+              <Box>
+                <Text>
+                  Compte: <Text color="cyan">{githubUser.username}</Text>
+                </Text>
+              </Box>
+              <Box>
+                <Text dimColor>Email: {githubUser.email}</Text>
+              </Box>
+            </>
+          )}
+          {!githubUser && (
+            <Box marginTop={1}>
+              <Text dimColor>
+                L'authentification GitHub sera demandée lors du push (remote HTTPS)
+              </Text>
+            </Box>
+          )}
+        </Box>
+
+        {/* AI Providers Status */}
         <Box flexDirection="column" marginBottom={1}>
+          <Box marginBottom={1}>
+            <Text bold>AI Providers</Text>
+          </Box>
           <Box>
             <Text>
               Mistral AI:{' '}
@@ -336,12 +381,18 @@ export const CredentialsTab: React.FC<Props> = ({ onConfigUpdate }) => {
               )}
             </Text>
           </Box>
+          <Box marginTop={1}>
+            <Text>
+              Ollama (Local):{' '}
+              <Text color="cyan">Pas de clé requise</Text>
+            </Text>
+          </Box>
         </Box>
 
         {/* Info message */}
         <Box flexDirection="column" marginTop={1}>
           <Text dimColor>
-            Pour configurer les API keys, ajoutez-les dans votre .gortexrc :
+            Pour configurer les API keys AI, ajoutez-les dans votre .gortexrc :
           </Text>
           <Box marginTop={1} paddingLeft={2} flexDirection="column">
             <Text dimColor>{'{'}</Text>
@@ -362,12 +413,6 @@ export const CredentialsTab: React.FC<Props> = ({ onConfigUpdate }) => {
             Ou utilisez les variables d'environnement: MISTRAL_API_KEY, OPENAI_API_KEY
           </Text>
         </Box>
-      </Box>
-
-      <Box marginTop={1}>
-        <Text dimColor>
-          Note: Ollama (local) ne nécessite pas de clé API
-        </Text>
       </Box>
 
       <Box marginTop={1}>
