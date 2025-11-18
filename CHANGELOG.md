@@ -2,6 +2,193 @@
 
 All notable changes to Gortex CLI will be documented in this file.
 
+## [3.0.0] - 2025-11-18
+
+### 🚨 BREAKING CHANGES
+
+This is a major UX refactor that changes the workflow interaction model.
+
+#### What Changed
+- Main workflow now uses **tabbed interface** instead of linear flow
+- AI generation is **integrated** into commit workflow (step 3)
+- Command `gortex ai-suggest` is **deprecated** (still works with warning)
+
+#### Migration Guide
+**Before v3.0:**
+```bash
+# Two separate workflows
+gortex commit          # Manual workflow
+gortex ai-suggest      # AI workflow
+```
+
+**After v3.0:**
+```bash
+# One unified workflow with choice
+gortex commit
+→ Choose AI or Manual at step 3
+```
+
+**No configuration changes needed!** Your `.gortexrc` works as-is.
+
+---
+
+### ✨ New Features
+
+#### 🎨 Tabbed Interface
+- **Tab Navigation System**: Switch between Credentials and Commit tabs
+- **Keyboard Shortcuts**:
+  - `Tab` or `→` to switch tabs
+  - `←` or `h` to go back
+  - `1-2` for direct access
+- **Intuitive UX**: Visual tab indicators with icons
+
+#### 🔑 Credentials Tab
+- View AI API keys status (Mistral AI, OpenAI)
+- Configuration instructions displayed in-app
+- Environment variable support guidance
+- Quick reference for setup
+
+#### 🤖 Integrated AI Generation
+- **Step 3 (NEW)**: Choose generation mode
+  - 🤖 AI - Ollama (if available)
+  - 🤖 AI - Mistral (if configured)
+  - 🤖 AI - OpenAI (if configured)
+  - ✍️ Manual (always available)
+- **Auto-detection**: Checks provider availability in real-time
+- **Smart Fallback**: Automatically switches to manual if AI unavailable
+- **Seamless Transition**: Reject AI suggestion → falls back to manual
+
+#### 🎯 Enhanced Commit Workflow
+New 7-step workflow:
+1. 🌿 Branch Selection
+2. 📦 File Selection
+3. 🤖 **Generation Mode** ← NEW
+4. ✨ Message Creation (AI or Manual)
+5. ✓ Confirmation
+6. 🚀 Push
+7. 🎉 Success
+
+#### 🔍 Provider Detection
+- Automatic checking of Ollama availability
+- API key validation for Mistral/OpenAI
+- Connection testing before offering options
+- Clear feedback on what's available
+
+---
+
+### 🔄 Changed
+
+#### Workflow Integration
+- AI generation moved from standalone command to workflow step
+- Single unified interface for all commit operations
+- More discoverable AI features
+- Better user guidance
+
+#### Command Updates
+- `gortex commit`: Now includes AI/Manual choice
+- `gortex ai-suggest`: Deprecated with migration notice
+- No new commands needed
+
+---
+
+### 🎨 UI/UX Improvements
+
+#### Visual Enhancements
+- Tab-based navigation for better organization
+- Real-time provider status indicators
+- Clearer step progression (7 steps vs 5)
+- Better error messages and warnings
+
+#### User Experience
+- No workflow interruption if AI fails
+- Choice is explicit and clear
+- Can switch between tabs anytime
+- Helpful warnings when providers missing
+
+---
+
+### 📦 Technical Changes
+
+#### New Components
+- `InteractiveWorkflow`: Main orchestrator with tabs
+- `TabNavigation`: Tab switching UI
+- `CredentialsTab`: Credentials management
+- `CommitTab`: Unified commit workflow
+- `CommitModeSelector`: AI/Manual selection with detection
+- `AICommitGenerator`: Integrated AI generation
+
+#### Architecture
+- State management lifted to InteractiveWorkflow
+- Composition pattern for tab content
+- Strategy pattern for AI/Manual choice
+- Observer pattern for tab communication
+
+#### Bundle Size
+- Previous: 83.71 KB
+- Current: 109.74 KB
+- Increase: +26 KB (justified by new features)
+
+---
+
+### 📚 Documentation
+
+#### New Documentation
+- `REFACTORING_SUMMARY.md`: Complete refactoring guide
+- Updated `README.md`: New workflow and navigation
+- Enhanced `docs/AI_SETUP.md`: Integration notes
+
+#### Migration Guides
+- Clear upgrade path from v2.x
+- No breaking config changes
+- Backward compatible for ai-suggest
+
+---
+
+### ⚠️ Deprecations
+
+#### Deprecated (Still Works)
+- **Command**: `gortex ai-suggest`
+  - Shows deprecation warning
+  - Redirects users to `gortex commit`
+  - Will be removed in v4.0.0
+  - Use `gortex commit` instead
+
+---
+
+### 🐛 Bug Fixes
+- Improved error handling in AI generation
+- Better fallback when providers unavailable
+- Fixed race conditions in provider detection
+
+---
+
+### 🎯 For Users
+
+#### If you used manual workflow
+- Same workflow, just with an extra choice at step 3
+- Select "Manual" to continue as before
+- No learning curve
+
+#### If you used `gortex ai-suggest`
+- Run `gortex commit` instead
+- Choose your AI provider at step 3
+- Same AI features, better integrated
+
+#### If you're new
+- Single workflow to learn
+- AI and Manual in one place
+- Guided experience throughout
+
+---
+
+### 🚀 Performance
+- No performance regression
+- Provider detection: <2s for all checks
+- Tab switching: Instant
+- Same fast build times
+
+---
+
 ## [2.0.0] - 2025-01-XX
 
 ### 🎨 Major UX/UI Overhaul - Premium Edition

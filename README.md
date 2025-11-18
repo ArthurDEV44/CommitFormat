@@ -108,14 +108,15 @@ This launches the **premium interactive workflow with tabs**:
 - Instructions for configuration
 - Environment variable support
 
-**📝 Commit Tab (7-step workflow):**
+**📝 Commit Tab (8-step workflow):**
 1. 🌿 **Branch Selection** - Choose or create a branch
 2. 📦 **File Selection** - Preview and select files to stage
-3. 🤖 **Generation Mode** - Choose AI (Ollama/Mistral/OpenAI) or Manual
-4. ✨ **Message Creation** - AI-generated or manual based on your choice
-5. ✓ **Confirmation** - Review and confirm your commit
-6. 🚀 **Push** - Optionally push to remote
-7. 🎉 **Success** - Completion summary
+3. 📥 **Staging** - Files are staged automatically
+4. 🤖 **Generation Mode** - Choose AI (Ollama/Mistral/OpenAI) or Manual
+5. ✨ **Message Creation** - AI-generated or manual based on your choice
+6. ✓ **Confirmation** - Review and confirm your commit
+7. 🚀 **Push** - Optionally push to remote
+8. 🎉 **Success** - Completion summary
 
 **Navigation:**
 - `Tab` or `→` to switch between tabs
@@ -181,9 +182,9 @@ echo '{
 }' > .gortexrc
 
 # Use it!
-git add .
 gortex commit
-# → Choose "AI - Ollama" at step 3
+# → Select files at step 2
+# → Choose "AI - Ollama" at step 4
 ```
 
 **Note:** The standalone `gortex ai-suggest` command is deprecated but still works.
