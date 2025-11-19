@@ -7,7 +7,7 @@ import { ErrorMessage } from './ErrorMessage.js';
 import { formatCommitMessage } from '../utils/validate.js';
 import { Confirm } from '../ui/Confirm.js';
 import { isGitRepository, createCommit } from '../utils/git.js';
-import { commitIcons } from '../theme/colors.js';
+import { commitIcons, icons } from '../theme/colors.js';
 
 interface Props {
   config: CommitConfig;

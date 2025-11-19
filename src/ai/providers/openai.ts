@@ -49,6 +49,7 @@ export class OpenAIProvider extends BaseAIProvider {
   private maxTokens: number;
 
   constructor(config: AIConfig) {
+    super();
     const apiKey = config.openai?.apiKey || process.env.OPENAI_API_KEY;
 
     if (!apiKey) {

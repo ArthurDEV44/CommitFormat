@@ -58,6 +58,7 @@ export class MistralProvider extends BaseAIProvider {
       );
     }
 
+    super();
     this.apiKey = apiKey;
     this.baseUrl =
       config.mistral?.baseUrl || 'https://api.mistral.ai';

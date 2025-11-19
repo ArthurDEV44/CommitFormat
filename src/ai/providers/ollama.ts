@@ -46,6 +46,7 @@ export class OllamaProvider extends BaseAIProvider {
   private maxTokens: number;
 
   constructor(config: AIConfig) {
+    super();
     this.baseUrl = config.ollama?.baseUrl || 'http://localhost:11434';
     this.model = config.ollama?.model || 'mistral:7b';
     this.timeout = config.ollama?.timeout || 30000;
