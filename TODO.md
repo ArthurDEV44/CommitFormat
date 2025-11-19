@@ -1,6 +1,6 @@
 # TODO - GORTEX CLI Clean Architecture Refactoring
 
-## 📊 État Actuel: 9/13 Phases Complétées (325+ tests, ALL Components Migrated!)
+## 📊 État Actuel: 10/13 Phases Complétées (325+ tests, ALL Components & Commands Migrated!)
 
 ### ✅ PHASES COMPLÉTÉES
 
@@ -75,36 +75,23 @@
 - ✅ Implémentation dans `GitRepositoryImpl`
 - ✅ Extension de `IGitRepository` avec nouvelles méthodes
 
+#### Phase 9: Migration des Commands CLI (✅ COMPLÉTÉE)
+**Localisation:** `src/commands/`
+- ✅ `commit.tsx` - Migrée vers architecture DI (remplace commit-refactored.tsx)
+- ✅ `ai-suggest.tsx` - Redirige maintenant vers `commit` (AI intégrée dans workflow principal)
+- ✅ `stats.tsx` - Nouveau composant `StatsDisplay.tsx` utilisant `useCommitHistory()`
+- ✅ Tous les commands utilisent maintenant `DIProvider` et `CompositionRoot`
+- ✅ Tests existants (325+) passent tous avec succès
+- ✅ Build réussit sans erreurs
+
+**Améliorations:**
+- ✅ Créé `StatsDisplay.tsx` - Composant React pour afficher les statistiques
+- ✅ Supprimé `commit-refactored.tsx` (maintenant obsolète)
+- ✅ Toutes les commandes CLI utilisent maintenant l'architecture Clean avec DI
+
 ---
 
-## 🚧 PHASES RESTANTES (4 phases)
-
-### Phase 9: Migration des Commands CLI
-**Objectif:** Migrer toutes les commandes pour utiliser DI
-
-**Fichiers à migrer:**
-1. `src/commands/commit.tsx` → Remplacer par `commit-refactored.tsx`
-2. `src/commands/ai-suggest.tsx` → Utiliser `useGenerateAICommit()`
-3. `src/commands/stats.ts` → Utiliser `useCommitHistory()`
-
-**Template de migration:**
-```typescript
-import { DIProvider, CompositionRoot } from '../infrastructure/di';
-
-export async function myCommand() {
-  const root = new CompositionRoot();
-  try {
-    const { waitUntilExit } = render(
-      <DIProvider root={root}>
-        <MyComponent />
-      </DIProvider>
-    );
-    await waitUntilExit();
-  } finally {
-    root.dispose();
-  }
-}
-```
+## 🚧 PHASES RESTANTES (3 phases)
 
 ### Phase 10: Cleanup du Code Legacy
 **Objectif:** Supprimer/déprécier ancien code après migration
@@ -176,27 +163,20 @@ test('complete commit workflow', async () => {
 
 ## 🎯 PRIORITÉS IMMÉDIATES
 
-### ✅ COMPLÉTÉ: Phase 8 - Migration des Composants (5/7)
-**Statut:** 5 composants migrés avec succès
-- ✅ CommitTab, FileSelector, CommitConfirmation, AICommitGenerator, StatsTab
-- ⏸️ BranchSelector et PushPrompt en attente (nécessitent Phase 8.5)
+### ✅ COMPLÉTÉ: Phase 9 - Migration des Commands CLI
+**Statut:** 3/3 commandes migrées avec succès
+- ✅ commit.tsx - Utilise maintenant DI avec CompositionRoot
+- ✅ ai-suggest.tsx - Redirige vers commit (AI intégrée)
+- ✅ stats.tsx - Nouveau composant StatsDisplay avec useCommitHistory()
 
-### 1. Phase 9: Migrer les Commands CLI
-**Fichiers:** `src/commands/commit.tsx`, `ai-suggest.tsx`, `stats.ts`
-**Raison:** Permettre l'utilisation de l'architecture DI dans toutes les commandes CLI
-**Étapes:**
-1. Remplacer `commit.tsx` par `commit-refactored.tsx`
-2. Migrer `ai-suggest.tsx` pour utiliser `useGenerateAICommit()`
-3. Migrer `stats.ts` pour utiliser `useCommitHistory()`
-
-### 2. Phase 10: Cleanup du Code Legacy
+### 1. Phase 10: Cleanup du Code Legacy
 **Objectif:** Supprimer/déprécier ancien code après migration
 **Fichiers:**
 1. Déprécier `src/utils/git.ts` après migration complète
 2. Nettoyer duplications dans `src/ai/`
 3. Vérifier imports obsolètes
 
-### 3. Phase 11: Tests d'Intégration
+### 2. Phase 11: Tests d'Intégration
 **Créer:** Tests end-to-end avec DI
 **Fichiers:**
 - `src/__tests__/integration/commit-workflow.test.tsx`
