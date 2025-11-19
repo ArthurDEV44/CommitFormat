@@ -55,8 +55,12 @@ export const BranchSelector: React.FC<BranchSelectorProps> = ({ onComplete }) =>
       <Box flexDirection="column">
         <Box paddingX={2} paddingY={1} borderStyle="round" borderColor="red">
           <Box>
-            <Box marginRight={1}>{icons.error}</Box>
-            <Box>Error: {error}</Box>
+            <Box marginRight={1}>
+              <Text>{icons.error}</Text>
+            </Box>
+            <Box>
+              <Text>Error: {error}</Text>
+            </Box>
           </Box>
         </Box>
       </Box>
