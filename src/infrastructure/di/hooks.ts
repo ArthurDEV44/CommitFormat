@@ -1,9 +1,10 @@
 /**
  * React Hooks for Use Cases
- * Convenient hooks to access specific use cases
+ * Convenient hooks to access specific use cases and repositories
  */
 
-import { useUseCase } from './DIContext.js';
+import { useUseCase, useDI } from './DIContext.js';
+import { ServiceIdentifiers } from './ServiceRegistry.js';
 import type { CreateCommitUseCase } from '../../application/use-cases/CreateCommitUseCase.js';
 import type { GenerateAICommitUseCase } from '../../application/use-cases/GenerateAICommitUseCase.js';
 import type { GetRepositoryStatusUseCase } from '../../application/use-cases/GetRepositoryStatusUseCase.js';
@@ -11,6 +12,8 @@ import type { AnalyzeCommitHistoryUseCase } from '../../application/use-cases/An
 import type { StageFilesUseCase } from '../../application/use-cases/StageFilesUseCase.js';
 import type { BranchOperationsUseCase } from '../../application/use-cases/BranchOperationsUseCase.js';
 import type { PushOperationsUseCase } from '../../application/use-cases/PushOperationsUseCase.js';
+import type { IGitRepository } from '../../domain/repositories/IGitRepository.js';
+import type { IAIProvider } from '../../domain/repositories/IAIProvider.js';
 
 /**
  * Hook to access CreateCommitUseCase
@@ -59,4 +62,26 @@ export function useBranchOperations(): BranchOperationsUseCase {
  */
 export function usePushOperations(): PushOperationsUseCase {
   return useUseCase<PushOperationsUseCase>('pushOperationsUseCase');
+}
+
+/**
+ * Hook to access GitRepository directly
+ * Use this when you need low-level git operations not covered by use cases
+ */
+export function useGitRepository(): IGitRepository {
+  const container = useDI();
+  return container.resolve<IGitRepository>(ServiceIdentifiers.GitRepository);
+}
+
+/**
+ * Hook to access AIProvider directly
+ * Use this when you need to check provider availability or other provider-specific operations
+ */
+export function useAIProvider(): IAIProvider | null {
+  const container = useDI();
+  try {
+    return container.resolve<IAIProvider>(ServiceIdentifiers.AIProvider);
+  } catch {
+    return null;
+  }
 }

@@ -1,6 +1,6 @@
 # TODO - GORTEX CLI Clean Architecture Refactoring
 
-## 📊 État Actuel: 10/13 Phases Complétées (325+ tests, ALL Components & Commands Migrated!)
+## 📊 État Actuel: 11/13 Phases Complétées (325+ tests, ALL Components & Commands Migrated, Legacy Code Cleaned!)
 
 ### ✅ PHASES COMPLÉTÉES
 
@@ -89,26 +89,26 @@
 - ✅ Supprimé `commit-refactored.tsx` (maintenant obsolète)
 - ✅ Toutes les commandes CLI utilisent maintenant l'architecture Clean avec DI
 
+#### Phase 10: Cleanup du Code Legacy (✅ COMPLÉTÉE)
+**Localisation:** `src/utils/`, `src/components/`, `src/commands/`, `src/infrastructure/`
+- ✅ Ajouté `getGitDirectory()` à `IGitRepository` et `GitRepositoryImpl`
+- ✅ Créé hooks `useGitRepository()` et `useAIProvider()` dans `hooks.ts`
+- ✅ Migré `HooksInstaller.tsx` et `HooksUninstaller.tsx` pour utiliser DI
+- ✅ Migré `hooks.tsx` (command) pour utiliser architecture DI complète
+- ✅ Supprimé `AISuggestWorkflow.tsx` (obsolète, remplacé par redirection)
+- ✅ Déprécié `utils/git.ts` avec commentaires détaillés
+- ✅ Documenté `CommitModeSelector.tsx` (utilisation légitime des providers)
+- ✅ Vérifié absence de duplications dans `src/ai/` (adapters réutilisent providers)
+- ✅ Tests passent (325+), build réussit
+
+**Architecture clarifiée:**
+- `src/ai/providers/` contient les implémentations concrètes des AI providers
+- `src/infrastructure/ai/` contient les adapters qui wrappent ces providers
+- Pas de duplication: architecture en couches appropriée
+
 ---
 
-## 🚧 PHASES RESTANTES (3 phases)
-
-### Phase 10: Cleanup du Code Legacy
-**Objectif:** Supprimer/déprécier ancien code après migration
-
-**Fichiers à nettoyer:**
-1. `src/utils/git.ts` - Déprécier après migration complète
-2. `src/ai/` (ancien système) - Garder les providers, supprimer duplications
-3. Vérifier imports obsolètes dans tous les fichiers
-
-**Commandes de vérification:**
-```bash
-# Trouver les imports de utils/git
-grep -r "from.*utils/git" src/components/
-
-# Trouver les imports directs des providers
-grep -r "from.*ai/providers" src/components/
-```
+## 🚧 PHASES RESTANTES (2 phases)
 
 ### Phase 11: Tests d'Intégration
 **Objectif:** Ajouter tests bout-en-bout avec DI
@@ -163,20 +163,16 @@ test('complete commit workflow', async () => {
 
 ## 🎯 PRIORITÉS IMMÉDIATES
 
-### ✅ COMPLÉTÉ: Phase 9 - Migration des Commands CLI
-**Statut:** 3/3 commandes migrées avec succès
-- ✅ commit.tsx - Utilise maintenant DI avec CompositionRoot
-- ✅ ai-suggest.tsx - Redirige vers commit (AI intégrée)
-- ✅ stats.tsx - Nouveau composant StatsDisplay avec useCommitHistory()
+### ✅ COMPLÉTÉ: Phase 10 - Cleanup du Code Legacy
+**Statut:** Nettoyage et migration complète
+- ✅ utils/git.ts déprécié avec documentation
+- ✅ HooksInstaller/Uninstaller migrés vers DI
+- ✅ hooks.tsx (command) migré vers DI
+- ✅ AISuggestWorkflow supprimé (obsolète)
+- ✅ Architecture AI clarifiée (pas de duplication)
+- ✅ Nouveaux hooks: useGitRepository(), useAIProvider()
 
-### 1. Phase 10: Cleanup du Code Legacy
-**Objectif:** Supprimer/déprécier ancien code après migration
-**Fichiers:**
-1. Déprécier `src/utils/git.ts` après migration complète
-2. Nettoyer duplications dans `src/ai/`
-3. Vérifier imports obsolètes
-
-### 2. Phase 11: Tests d'Intégration
+### 1. Phase 11: Tests d'Intégration
 **Créer:** Tests end-to-end avec DI
 **Fichiers:**
 - `src/__tests__/integration/commit-workflow.test.tsx`

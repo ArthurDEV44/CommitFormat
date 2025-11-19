@@ -1,3 +1,20 @@
+/**
+ * @deprecated This file contains legacy Git utilities
+ *
+ * MIGRATION STATUS: Most functionality has been migrated to Clean Architecture
+ *
+ * NEW CODE SHOULD USE:
+ * - Domain: `IGitRepository` interface (src/domain/repositories/IGitRepository.ts)
+ * - Infrastructure: `GitRepositoryImpl` (src/infrastructure/repositories/GitRepositoryImpl.ts)
+ * - React Hooks: `useGitRepository()` (src/infrastructure/di/hooks.ts)
+ *
+ * This file is kept temporarily for:
+ * - Backward compatibility with some legacy components
+ * - Components that directly check provider availability (CommitModeSelector)
+ *
+ * TODO Phase 11: Complete removal after all components are migrated
+ */
+
 import { simpleGit, SimpleGit, LogResult } from 'simple-git';
 import type { CommitStats } from '../types.js';
 import { isConventionalCommit, parseConventionalCommit } from './validate.js';

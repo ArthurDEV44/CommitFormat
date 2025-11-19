@@ -3,7 +3,7 @@ import { Box, Text } from 'ink';
 import { Confirm } from '../ui/index.js';
 import fs from 'fs/promises';
 import path from 'path';
-import { getGitDir } from '../utils/git.js';
+import { useGitRepository } from '../infrastructure/di/hooks.js';
 import { icons } from '../theme/colors.js';
 
 interface HooksUninstallerProps {
@@ -11,6 +11,7 @@ interface HooksUninstallerProps {
 }
 
 export const HooksUninstaller: React.FC<HooksUninstallerProps> = ({ onComplete }) => {
+  const gitRepository = useGitRepository();
   const [loading, setLoading] = useState(true);
   const [hookExists, setHookExists] = useState(false);
   const [isGortexHook, setIsGortexHook] = useState(false);
@@ -20,7 +21,7 @@ export const HooksUninstaller: React.FC<HooksUninstallerProps> = ({ onComplete }
   useEffect(() => {
     const checkHook = async () => {
       try {
-        const gitDir = await getGitDir();
+        const gitDir = await gitRepository.getGitDirectory();
         const hookFilePath = path.join(gitDir, 'hooks', 'commit-msg');
 
         setHookPath(hookFilePath);
@@ -39,7 +40,7 @@ export const HooksUninstaller: React.FC<HooksUninstallerProps> = ({ onComplete }
       }
     };
     checkHook();
-  }, [onComplete]);
+  }, [onComplete, gitRepository]);
 
   const handleConfirm = async (confirmed: boolean) => {
     if (!confirmed) {

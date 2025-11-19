@@ -3,7 +3,7 @@ import { Box, Text } from 'ink';
 import { Confirm } from '../ui/index.js';
 import fs from 'fs/promises';
 import path from 'path';
-import { getGitDir } from '../utils/git.js';
+import { useGitRepository } from '../infrastructure/di/hooks.js';
 import { icons } from '../theme/colors.js';
 
 const COMMIT_MSG_HOOK = `#!/bin/sh
@@ -40,6 +40,7 @@ interface HooksInstallerProps {
 }
 
 export const HooksInstaller: React.FC<HooksInstallerProps> = ({ onComplete }) => {
+  const gitRepository = useGitRepository();
   const [loading, setLoading] = useState(true);
   const [hookExists, setHookExists] = useState(false);
   const [hookPath, setHookPath] = useState('');
@@ -48,7 +49,7 @@ export const HooksInstaller: React.FC<HooksInstallerProps> = ({ onComplete }) =>
   useEffect(() => {
     const checkHook = async () => {
       try {
-        const gitDir = await getGitDir();
+        const gitDir = await gitRepository.getGitDirectory();
         const hooksDir = path.join(gitDir, 'hooks');
         const hookFilePath = path.join(hooksDir, 'commit-msg');
 
@@ -67,7 +68,7 @@ export const HooksInstaller: React.FC<HooksInstallerProps> = ({ onComplete }) =>
       }
     };
     checkHook();
-  }, [onComplete]);
+  }, [onComplete, gitRepository]);
 
   const handleConfirm = async (confirmed: boolean) => {
     if (!confirmed) {
@@ -78,7 +79,7 @@ export const HooksInstaller: React.FC<HooksInstallerProps> = ({ onComplete }) =>
     setInstalling(true);
 
     try {
-      const gitDir = await getGitDir();
+      const gitDir = await gitRepository.getGitDirectory();
       const hooksDir = path.join(gitDir, 'hooks');
 
       await fs.mkdir(hooksDir, { recursive: true });
