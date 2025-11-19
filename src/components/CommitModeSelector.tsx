@@ -1,3 +1,9 @@
+/**
+ * Commit Mode Selector Component
+ * Note: Uses AI providers directly to check availability.
+ * This is acceptable as these are the concrete implementations used by infrastructure adapters.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import Gradient from 'ink-gradient';

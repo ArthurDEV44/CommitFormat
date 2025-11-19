@@ -34,6 +34,11 @@ export interface IGitRepository {
   isRepository(): Promise<boolean>;
 
   /**
+   * Gets the path to the .git directory
+   */
+  getGitDirectory(): Promise<string>;
+
+  /**
    * Checks if there are any uncommitted changes
    */
   hasChanges(): Promise<boolean>;

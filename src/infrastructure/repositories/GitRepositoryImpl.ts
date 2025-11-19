@@ -28,6 +28,11 @@ export class GitRepositoryImpl implements IGitRepository {
     }
   }
 
+  async getGitDirectory(): Promise<string> {
+    const gitDir = await this.git.revparse(['--git-dir']);
+    return gitDir.trim();
+  }
+
   async hasChanges(): Promise<boolean> {
     const status = await this.git.status();
     return !status.isClean();
