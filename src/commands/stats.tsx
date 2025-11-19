@@ -1,22 +1,19 @@
 /**
- * Commit Command with Clean Architecture DI
+ * Stats Command with Clean Architecture DI
  * Migrated from legacy utils/git to DI-based architecture
  */
 
 import React from 'react';
 import { render } from 'ink';
 import chalk from 'chalk';
-import { InteractiveWorkflow } from '../components/InteractiveWorkflow.js';
-import { Brand } from '../components/Brand.js';
-import { ErrorMessage } from '../components/ErrorMessage.js';
-import { loadConfig } from '../utils/config.js';
-import { UI_DELAYS } from '../shared/constants/index.js';
 import { DIProvider } from '../infrastructure/di/DIContext.js';
 import { CompositionRoot } from '../infrastructure/di/CompositionRoot.js';
 import { ServiceIdentifiers } from '../infrastructure/di/ServiceRegistry.js';
 import type { IGitRepository } from '../domain/repositories/IGitRepository.js';
+import { StatsDisplay } from '../components/StatsDisplay.js';
+import { ErrorMessage } from '../components/ErrorMessage.js';
 
-export async function commitCommand(): Promise<void> {
+export async function statsCommand(maxCount: number = 100): Promise<void> {
   // Create composition root for DI
   const root = new CompositionRoot();
 
@@ -32,8 +29,8 @@ export async function commitCommand(): Promise<void> {
           title="Not a Git Repository"
           message="This directory is not a Git repository"
           suggestions={[
-            'Initialize a Git repository with: git init',
             'Navigate to a directory with a Git repository',
+            'Initialize a Git repository with: git init',
           ]}
         />
       );
@@ -41,40 +38,14 @@ export async function commitCommand(): Promise<void> {
       process.exit(1);
     }
 
-    // Vérifier qu'il y a des changements
-    const hasChanges = await gitRepo.hasChanges();
-    if (!hasChanges) {
-      const { waitUntilExit } = render(
-        <ErrorMessage
-          title="No Changes to Commit"
-          message="There are no staged or unstaged changes"
-          suggestions={[
-            'Make some changes to your files',
-            'Use git status to check repository status',
-          ]}
-        />
-      );
-      await waitUntilExit();
-      process.exit(0);
-    }
-
-    // Load configuration
-    const config = await loadConfig();
-
-    // Show intro brand
-    console.clear();
-    const intro = render(<Brand variant="large" tagline={true} />);
-    await new Promise(resolve => setTimeout(resolve, UI_DELAYS.INTRO));
-    intro.unmount();
-
-    // Lancer le workflow interactif avec DI
+    // Render stats with DI
     const { waitUntilExit } = render(
       <DIProvider root={root}>
-        <InteractiveWorkflow config={config} />
+        <StatsDisplay maxCount={maxCount} />
       </DIProvider>
     );
-    await waitUntilExit();
 
+    await waitUntilExit();
   } catch (error) {
     console.error(chalk.red('❌ Erreur:'), error);
     process.exit(1);
@@ -83,3 +54,4 @@ export async function commitCommand(): Promise<void> {
     root.dispose();
   }
 }
+
