@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mockGit, setupMockScenario, resetMocks, createMockStatus, createMockLog } from '../../__mocks__/simple-git.js';
+import {
+  mockGit,
+  setupMockScenario,
+  resetMocks,
+  createMockStatus,
+  createMockLog,
+} from '../__mocks__/simple-git.js';
 
 // Mock simple-git before importing functions
 vi.mock('simple-git');

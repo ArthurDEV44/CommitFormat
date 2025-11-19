@@ -48,8 +48,6 @@ export default defineConfig({
         '**/dist/**',
       ],
 
-      // Report all files, even untested ones
-      all: true,
     },
 
     // Mock configuration
@@ -64,11 +62,6 @@ export default defineConfig({
     // Parallel execution
     isolate: true,
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: false,
-      },
-    },
 
     // Reporter configuration
     reporters: ['verbose'],
