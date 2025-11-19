@@ -4,17 +4,27 @@
  */
 
 import { vi } from 'vitest';
-import type { SimpleGit, StatusResult, LogResult, BranchSummary, RemoteWithRefs } from 'simple-git';
+import type {
+  SimpleGit,
+  StatusResult,
+  LogResult,
+  BranchSummary,
+  RemoteWithRefs,
+} from 'simple-git';
 
 /**
  * Creates a mock status result
  */
-export const createMockStatus = (files: Array<{ path: string; working_dir?: string; index?: string }> = []): StatusResult => ({
+export const createMockStatus = (
+  files: Array<{ path: string; working_dir?: string; index?: string }> = [],
+): StatusResult => ({
   not_added: [],
   conflicted: [],
   created: [],
   deleted: [],
-  modified: files.filter(f => f.working_dir === 'M' || f.index === 'M').map(f => f.path),
+  modified: files
+    .filter(f => f.working_dir === 'M' || f.index === 'M')
+    .map(f => f.path),
   renamed: [],
   staged: files.filter(f => f.index).map(f => f.path),
   files: files.map(f => ({
@@ -33,7 +43,9 @@ export const createMockStatus = (files: Array<{ path: string; working_dir?: stri
 /**
  * Creates a mock log result
  */
-export const createMockLog = (commits: Array<{ hash: string; message: string; date?: string; author_name?: string }> = []): LogResult => ({
+export const createMockLog = (
+  commits: Array<{ hash: string; message: string; date?: string; author_name?: string }> = [],
+): LogResult => ({
   all: commits.map(c => ({
     hash: c.hash,
     date: c.date || '2024-01-01',
@@ -44,15 +56,17 @@ export const createMockLog = (commits: Array<{ hash: string; message: string; da
     author_email: 'test@example.com',
   })),
   total: commits.length,
-  latest: commits[0] ? {
-    hash: commits[0].hash,
-    date: commits[0].date || '2024-01-01',
-    message: commits[0].message,
-    refs: '',
-    body: '',
-    author_name: commits[0].author_name || 'Test User',
-    author_email: 'test@example.com',
-  } : null,
+  latest: commits[0]
+    ? {
+        hash: commits[0].hash,
+        date: commits[0].date || '2024-01-01',
+        message: commits[0].message,
+        refs: '',
+        body: '',
+        author_name: commits[0].author_name || 'Test User',
+        author_email: 'test@example.com',
+      }
+    : null,
 });
 
 /**
@@ -110,7 +124,9 @@ export const mockGit: Partial<SimpleGit> = {
   checkoutLocalBranch: vi.fn().mockResolvedValue(undefined),
 
   // Remote operations
-  getRemotes: vi.fn().mockResolvedValue([createMockRemote('origin', 'https://github.com/test/repo.git')]),
+  getRemotes: vi.fn().mockResolvedValue([
+    createMockRemote('origin', 'https://github.com/test/repo.git'),
+  ]),
   push: vi.fn().mockResolvedValue(undefined),
 
   // Raw operations
@@ -150,7 +166,7 @@ export const setupMockScenario = {
    */
   dirtyRepo: (files: string[] = ['file1.ts', 'file2.ts']) => {
     (mockGit.status as any).mockResolvedValue(
-      createMockStatus(files.map(path => ({ path, working_dir: 'M' })))
+      createMockStatus(files.map(path => ({ path, working_dir: 'M' }))),
     );
   },
 
@@ -159,9 +175,11 @@ export const setupMockScenario = {
    */
   stagedChanges: (files: string[] = ['file1.ts']) => {
     (mockGit.status as any).mockResolvedValue(
-      createMockStatus(files.map(path => ({ path, index: 'M' })))
+      createMockStatus(files.map(path => ({ path, index: 'M' }))),
     );
-    (mockGit.diff as any).mockResolvedValue(`diff --git a/${files[0]} b/${files[0]}\n+new content`);
+    (mockGit.diff as any).mockResolvedValue(
+      `diff --git a/${files[0]} b/${files[0]}\n+new content`,
+    );
   },
 
   /**
@@ -188,7 +206,9 @@ export const setupMockScenario = {
       }
       return Promise.resolve('.git');
     });
-    (mockGit.branchLocal as any).mockResolvedValue(createMockBranchSummary([branchName, 'main'], branchName));
+    (mockGit.branchLocal as any).mockResolvedValue(
+      createMockBranchSummary([branchName, 'main'], branchName),
+    );
   },
 
   /**
@@ -207,3 +227,4 @@ export const setupMockScenario = {
 };
 
 export default simpleGit;
+
