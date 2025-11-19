@@ -327,23 +327,49 @@ Built with modern, battle-tested technologies:
 - **gradient-string** - Colored text
 - **chalk** - Terminal styling
 
+### Architecture
+
+Gortex CLI uses **Clean Architecture** with **Dependency Injection** for a maintainable, testable, and scalable codebase:
+
+- **Domain Layer** - Pure business logic (Entities, Value Objects, Repository interfaces)
+- **Application Layer** - Use cases orchestrating business logic
+- **Infrastructure Layer** - Concrete implementations (Git, AI providers, DI container)
+- **Presentation Layer** - React components and CLI commands
+
+**Key Benefits:**
+- ✅ **403 tests** (350 unit + 53 integration) with 92% coverage
+- ✅ **Fully decoupled** - Easy to test, maintain, and extend
+- ✅ **Type-safe** - TypeScript throughout all layers
+- ✅ **Production-ready** - Battle-tested architecture
+
+📚 Learn more: [Architecture Documentation](docs/ARCHITECTURE.md)
+
 ---
 
-## 📊 Performance
+## 📊 Performance & Quality
 
 | Metric | Value |
 |--------|-------|
-| **Bundle Size** | 57KB (optimized) |
-| **Build Time** | ~25ms |
+| **Bundle Size** | 166.92 KB (optimized) |
+| **Build Time** | ~1.2s (ESM + DTS) |
 | **First Paint** | <100ms |
 | **Animations** | 60fps smooth |
 | **Node Version** | ≥18.0.0 |
+| **Tests** | 403 tests (92% coverage) |
+| **Architecture** | Clean Architecture + DI |
+| **Type Safety** | 100% TypeScript |
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! See our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! We follow Clean Architecture principles and maintain high code quality standards.
+
+📚 **Read our guides:**
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Architecture Documentation](docs/ARCHITECTURE.md) - Understand the architecture
+- [Use Cases Documentation](docs/USE_CASES.md) - Learn about use cases
+- [Migration Guide](docs/MIGRATION_GUIDE.md) - Migration patterns
 
 ### Development Setup
 
@@ -361,8 +387,31 @@ pnpm dev
 # Build
 pnpm build
 
+# Run tests
+pnpm test
+
+# Run tests with coverage
+pnpm test -- --coverage
+
 # Type check
 pnpm typecheck
+```
+
+### Project Structure
+
+```
+gortex-cli/
+├── src/
+│   ├── domain/          # Business logic (entities, value objects, interfaces)
+│   ├── application/     # Use cases, DTOs, mappers
+│   ├── infrastructure/  # Implementations (repositories, AI, DI)
+│   ├── components/      # React components (presentation)
+│   └── commands/        # CLI commands
+├── docs/                # Documentation
+│   ├── ARCHITECTURE.md  # Architecture guide
+│   ├── USE_CASES.md     # Use cases documentation
+│   └── MIGRATION_GUIDE.md
+└── __tests__/           # Tests (unit + integration)
 ```
 
 ---
