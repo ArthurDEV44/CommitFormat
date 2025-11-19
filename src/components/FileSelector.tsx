@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box } from 'ink';
+import { Box, Text } from 'ink';
 import { Select, MultiSelect, type SelectItem, type MultiSelectItem } from '../ui/index.js';
 import { FileDiffPreview } from './FileDiffPreview.js';
 import { LoadingSpinner } from './LoadingSpinner.js';
@@ -84,8 +84,7 @@ export const FileSelector: React.FC<FileSelectorProps> = ({ onComplete }) => {
       <Box flexDirection="column">
         <Box paddingX={2} paddingY={1} borderStyle="round" borderColor="red">
           <Box>
-            <Box marginRight={1}>{icons.error}</Box>
-            <Box>Error: {error}</Box>
+            <Text>{icons.error} Error: {error}</Text>
           </Box>
         </Box>
       </Box>

@@ -9,7 +9,12 @@ tsup.config.ts
 # Test files
 test/
 tests/
+__test__/
 __tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
 
 # Documentation (keep only essentials)
 MIGRATION_INK.md
