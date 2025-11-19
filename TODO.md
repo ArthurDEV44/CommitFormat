@@ -1,6 +1,6 @@
 # TODO - GORTEX CLI Clean Architecture Refactoring
 
-## 📊 État Actuel: 7/13 Phases Complétées (325+ tests)
+## 📊 État Actuel: 8/13 Phases Complétées (325+ tests, Phase 8 partiellement complète)
 
 ### ✅ PHASES COMPLÉTÉES
 
@@ -51,60 +51,38 @@
 - ✅ `commit-refactored.tsx` - Exemple de command refactoré
 - ✅ `docs/MIGRATION_GUIDE.md` - Guide de migration complet
 
+#### Phase 8: Migration Progressive des Composants (5/7 ✅ PARTIELLEMENT COMPLÉTÉE)
+**Localisation:** `src/components/`
+- ✅ `CommitTab.tsx` - Utilise `useStageFiles()`
+- ✅ `FileSelector.tsx` - Utilise `useRepositoryStatus()`
+- ✅ `CommitConfirmation.tsx` - Utilise `useStageFiles()` + `useCreateCommit()`
+- ✅ `AICommitGenerator.tsx` - Utilise `useGenerateAICommit()`
+- ✅ `StatsTab.tsx` - Utilise `useCommitHistory()`
+- ⏸️ `BranchSelector.tsx` - EN ATTENTE (nécessite nouveau use case)
+- ⏸️ `PushPrompt.tsx` - EN ATTENTE (nécessite nouveau use case)
+
+**Améliorations:**
+- ✅ Ajouté `CommitMessageMapper.fromFormattedString()` pour parser conventional commits
+
+**Note:** Les 2 composants restants seront migrés après création des use cases manquants (Phase 8.5)
+
 ---
 
-## 🚧 PHASES RESTANTES (6 phases)
+## 🚧 PHASES RESTANTES (5 phases)
 
-### Phase 8: Migration Progressive des Composants ✅ 5/7 COMPLÉTÉS
-**Objectif:** Migrer les composants existants pour utiliser DI et use cases
+### Phase 8.5: Use Cases Additionnels (OPTIONNEL - peut être fait plus tard)
+**Objectif:** Créer use cases manquants pour finaliser Phase 8
 
-**Fichiers migrés:** ✅
-1. ✅ `src/components/CommitTab.tsx` (MIGRÉ)
-   - ✅ Remplacé `stageFiles` par `useStageFiles()`
-   - ✅ Utilise pattern success/error
-   - ✅ Hook appelé au niveau du composant
+**Use cases à créer:**
+1. `BranchOperationsUseCase`
+   - Méthodes: getCurrentBranch, getAllBranches, checkoutBranch, createBranch, branchExists
+   - Nécessaire pour: BranchSelector.tsx
 
-2. ✅ `src/components/FileSelector.tsx` (MIGRÉ)
-   - ✅ Remplacé `getModifiedFilesWithStatus()` par `useRepositoryStatus()`
-   - ✅ Conversion DTO vers format interne
-   - ✅ Gestion d'erreurs ajoutée
+2. `PushOperationsUseCase`
+   - Méthodes: hasRemote, getRemoteUrl, pushToRemote, hasUpstream, getDefaultRemote
+   - Nécessaire pour: PushPrompt.tsx
 
-3. ✅ `src/components/CommitConfirmation.tsx` (MIGRÉ)
-   - ✅ Remplacé `stageFiles` et `createCommit` par hooks DI
-   - ✅ Ajouté `CommitMessageMapper.fromFormattedString()` pour parser messages
-   - ✅ Utilise `useStageFiles()` et `useCreateCommit()`
-   - ✅ Gestion d'erreurs robuste avec success/error pattern
-
-4. ✅ `src/components/AICommitGenerator.tsx` (MIGRÉ)
-   - ✅ Remplacé `AICommitService` et `analyzeStagedChanges` par `useGenerateAICommit()`
-   - ✅ Utilise `AIProviderFactory` pour créer provider instance
-   - ✅ Mapping vers CommitMessageDTO et formatted message
-   - ✅ Gestion d'erreurs avec success/error pattern
-
-5. ✅ `src/components/StatsTab.tsx` (MIGRÉ)
-   - ✅ Remplacé `analyzeCommitStats` par `useCommitHistory()`
-   - ✅ Mapping RepositoryStatsDTO vers format interne
-   - ✅ Gestion d'erreurs ajoutée
-
-**Fichiers restants (BLOQUÉS - nécessitent nouveaux use cases):**
-6. `src/components/BranchSelector.tsx` (BLOQUÉ)
-   - Note: Nécessite BranchOperationsUseCase pour getAllBranches, checkoutBranch, createAndCheckoutBranch, branchExists
-   - Opérations disponibles dans IGitRepository mais pas encore dans use cases
-
-7. `src/components/PushPrompt.tsx` (BLOQUÉ)
-   - Note: Nécessite PushOperationsUseCase pour hasRemote, getRemoteUrl, pushToRemote, hasUpstream, getDefaultRemote
-   - Opérations disponibles dans IGitRepository mais pas encore dans use cases
-
-**Améliorations apportées:**
-- ✅ Ajouté `CommitMessageMapper.fromFormattedString()` pour parser les messages conventionnels
-
-**Approche:**
-- Wrapper chaque component parent avec `<DIProvider>`
-- Remplacer imports utils par hooks DI
-- Utiliser DTOs au lieu de types bruts
-- Tester composant par composant
-
-**Référence:** `docs/MIGRATION_GUIDE.md`
+**Note:** Ces use cases peuvent être créés après Phase 9-10 si besoin
 
 ### Phase 9: Migration des Commands CLI
 **Objectif:** Migrer toutes les commandes pour utiliser DI
@@ -203,26 +181,32 @@ test('complete commit workflow', async () => {
 
 ## 🎯 PRIORITÉS IMMÉDIATES
 
-### 1. Migrer CommitTab.tsx (CRITIQUE)
-**Fichier:** `src/components/CommitTab.tsx`
-**Raison:** Component principal du workflow
-**Étapes:**
-1. Wrapper avec DIProvider dans InteractiveWorkflow
-2. Remplacer `stageFiles()` par `useStageFiles()`
-3. Tester le workflow complet
+### ✅ COMPLÉTÉ: Phase 8 - Migration des Composants (5/7)
+**Statut:** 5 composants migrés avec succès
+- ✅ CommitTab, FileSelector, CommitConfirmation, AICommitGenerator, StatsTab
+- ⏸️ BranchSelector et PushPrompt en attente (nécessitent Phase 8.5)
 
-### 2. Migrer CommitConfirmation.tsx
-**Fichier:** `src/components/CommitConfirmation.tsx`
-**Raison:** Crée le commit, fonction critique
+### 1. Phase 9: Migrer les Commands CLI
+**Fichiers:** `src/commands/commit.tsx`, `ai-suggest.tsx`, `stats.ts`
+**Raison:** Permettre l'utilisation de l'architecture DI dans toutes les commandes CLI
 **Étapes:**
-1. Utiliser `useCreateCommit()` hook
-2. Passer CommitMessageDTO au lieu de string
-3. Gérer result.success/error
+1. Remplacer `commit.tsx` par `commit-refactored.tsx`
+2. Migrer `ai-suggest.tsx` pour utiliser `useGenerateAICommit()`
+3. Migrer `stats.ts` pour utiliser `useCommitHistory()`
 
-### 3. Tests d'Intégration Basiques
-**Créer:** `src/__tests__/integration/basic-workflow.test.ts`
-**Raison:** Valider que DI fonctionne end-to-end
-**Contenu:** Test du flow stage → commit avec mocks
+### 2. Phase 10: Cleanup du Code Legacy
+**Objectif:** Supprimer/déprécier ancien code après migration
+**Fichiers:**
+1. Déprécier `src/utils/git.ts` après migration complète
+2. Nettoyer duplications dans `src/ai/`
+3. Vérifier imports obsolètes
+
+### 3. Phase 11: Tests d'Intégration
+**Créer:** Tests end-to-end avec DI
+**Fichiers:**
+- `src/__tests__/integration/commit-workflow.test.tsx`
+- `src/__tests__/integration/ai-generation.test.ts`
+- `src/__tests__/integration/cli-commands.test.ts`
 
 ---
 
