@@ -117,9 +117,13 @@ export function generateUserPrompt(
     // Summary
     parts.push("  <summary>");
     parts.push(`    <complexity>${analysis.complexity}</complexity>`);
-    parts.push(`    <files_changed>${analysis.summary.filesChanged}</files_changed>`);
+    parts.push(
+      `    <files_changed>${analysis.summary.filesChanged}</files_changed>`,
+    );
     parts.push(`    <lines_added>${analysis.summary.linesAdded}</lines_added>`);
-    parts.push(`    <lines_removed>${analysis.summary.linesRemoved}</lines_removed>`);
+    parts.push(
+      `    <lines_removed>${analysis.summary.linesRemoved}</lines_removed>`,
+    );
     parts.push("  </summary>");
 
     // Modified symbols (functions, classes, etc.)
@@ -183,12 +187,16 @@ export function generateUserPrompt(
   // Enhanced instructions using the analysis
   if (analysis) {
     // Use file-level analysis (research-proven approach)
-    const highPriorityFiles = analysis.fileChanges.filter((f) => f.importance === "high");
-    const newFiles = analysis.fileChanges.filter((f) => f.isNew);
+    const highPriorityFiles = analysis.fileChanges.filter(
+      (f) => f.importance === "high",
+    );
+    const _newFiles = analysis.fileChanges.filter((f) => f.isNew);
 
     // Smart pattern selection: prioritize feature_addition over technical patterns
     let dominantPattern = analysis.changePatterns[0];
-    const featurePattern = analysis.changePatterns.find((p) => p.type === "feature_addition");
+    const featurePattern = analysis.changePatterns.find(
+      (p) => p.type === "feature_addition",
+    );
 
     if (
       featurePattern &&
@@ -206,7 +214,11 @@ export function generateUserPrompt(
       parts.push("Composants principaux:");
       highPriorityFiles.slice(0, 5).forEach((f) => {
         // Extract component/class name from file path
-        const fileName = f.path.split("/").pop()?.replace(/\.(ts|tsx|js|jsx)$/, "") || f.path;
+        const fileName =
+          f.path
+            .split("/")
+            .pop()
+            ?.replace(/\.(ts|tsx|js|jsx)$/, "") || f.path;
         const status = f.isNew
           ? "NOUVEAU"
           : `modifié (+${f.linesAdded}/-${f.linesRemoved})`;
@@ -241,21 +253,37 @@ export function generateUserPrompt(
 
     parts.push("INSTRUCTIONS POUR LE COMMIT MESSAGE:");
     parts.push("1. SUBJECT (50-72 chars):");
-    parts.push("   - Décris QUEL système/fonctionnalité/composant a été créé/modifié");
-    parts.push("   - Utilise les NOMS de classes/services/modules du diff (ex: 'DiffAnalyzer', 'AIProvider')");
-    parts.push("   - NE liste PAS les chemins de fichiers (ex: ❌ 'src/domain/services/...')");
-    parts.push("   - Sois descriptif et sémantique (ex: ✅ 'structured diff analysis for AI commits')");
+    parts.push(
+      "   - Décris QUEL système/fonctionnalité/composant a été créé/modifié",
+    );
+    parts.push(
+      "   - Utilise les NOMS de classes/services/modules du diff (ex: 'DiffAnalyzer', 'AIProvider')",
+    );
+    parts.push(
+      "   - NE liste PAS les chemins de fichiers (ex: ❌ 'src/domain/services/...')",
+    );
+    parts.push(
+      "   - Sois descriptif et sémantique (ex: ✅ 'structured diff analysis for AI commits')",
+    );
     parts.push("");
-    parts.push(`2. BODY (REQUIS car complexité=${analysis.complexity} avec ${analysis.summary.filesChanged} fichiers):`);
-    parts.push("   - Explique POURQUOI ce changement (intention, bénéfice architectural)");
-    parts.push("   - Décris CE QUI a été introduit/modifié au niveau conceptuel");
+    parts.push(
+      `2. BODY (REQUIS car complexité=${analysis.complexity} avec ${analysis.summary.filesChanged} fichiers):`,
+    );
+    parts.push(
+      "   - Explique POURQUOI ce changement (intention, bénéfice architectural)",
+    );
+    parts.push(
+      "   - Décris CE QUI a été introduit/modifié au niveau conceptuel",
+    );
     parts.push("   - Mentionne les composants impactés et leurs interactions");
     parts.push("   - 2-4 phrases minimum pour les changements complexes");
     parts.push("");
     parts.push("3. RÈGLES STRICTES:");
     parts.push("   - Focus sur l'INTENTION et le CONCEPT, pas les fichiers");
     parts.push("   - Si 1 classe principale créée → nomme-la dans le subject");
-    parts.push("   - Si pattern clair (ex: 'refactor X to use Y') → décris la transformation");
+    parts.push(
+      "   - Si pattern clair (ex: 'refactor X to use Y') → décris la transformation",
+    );
     parts.push("   - N'invente PAS de détails non présents dans le diff");
     parts.push("");
     parts.push("Génère le commit JSON maintenant.");

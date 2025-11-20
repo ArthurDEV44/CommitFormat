@@ -44,7 +44,7 @@ export class OllamaProvider extends BaseAIProvider {
   constructor(config: AIConfig) {
     super();
     this.baseUrl = config.ollama?.baseUrl || "http://localhost:11434";
-    this.model = config.ollama?.model || "mistral:7b";
+    this.model = config.ollama?.model || "devstral:24b";
     this.timeout = config.ollama?.timeout || 30000;
     this.temperature = config.temperature ?? 0.3;
     this.maxTokens = config.maxTokens ?? 500;
@@ -128,7 +128,8 @@ export class OllamaProvider extends BaseAIProvider {
           },
           body: {
             type: "string",
-            description: "Detailed description explaining WHY this change was made and WHAT it introduces architecturally. Include if the change is complex (multiple files, new system, refactoring). Explain benefits and impacts.",
+            description:
+              "Detailed description explaining WHY this change was made and WHAT it introduces architecturally. Include if the change is complex (multiple files, new system, refactoring). Explain benefits and impacts.",
           },
           breaking: {
             type: "boolean",
@@ -140,7 +141,8 @@ export class OllamaProvider extends BaseAIProvider {
           },
           confidence: {
             type: "integer",
-            description: "Confidence level (0-100). IMPORTANT: Use 70-90 for clear changes, 50-69 for uncertain ones. NEVER use 0.",
+            description:
+              "Confidence level (0-100). IMPORTANT: Use 70-90 for clear changes, 50-69 for uncertain ones. NEVER use 0.",
             minimum: 50,
             maximum: 100,
           },

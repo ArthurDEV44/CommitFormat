@@ -55,7 +55,7 @@ describe('CommitModeSelector', () => {
       enabled: true,
       provider: 'ollama',
       ollama: {
-        model: 'mistral:7b',
+        model: 'devstral:24b',
         baseUrl: 'http://localhost:11434',
       },
     },

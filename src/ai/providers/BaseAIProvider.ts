@@ -1,5 +1,5 @@
-import { COMMIT_LIMITS } from "../../shared/constants/index.js";
 import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
+import { COMMIT_LIMITS } from "../../shared/constants/index.js";
 import type { AIGeneratedCommit } from "../../types.js";
 import type { AIProvider, CommitContext } from "./base.js";
 

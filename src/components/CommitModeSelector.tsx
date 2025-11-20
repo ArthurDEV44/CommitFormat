@@ -95,7 +95,7 @@ export const CommitModeSelector = ({ config, onComplete }: Props) => {
     aiProviders.push({
       label: `${icons.settings} AI - Ollama (Local)`,
       value: "ollama",
-      description: `Génération avec Ollama - ${config.ai?.ollama?.model || "mistral:7b"}`,
+      description: `Génération avec Ollama - ${config.ai?.ollama?.model || "devstral:24b"}`,
     });
   }
 
@@ -163,7 +163,7 @@ export const CommitModeSelector = ({ config, onComplete }: Props) => {
             <Box marginTop={1}>
               <Text dimColor>
                 • <Text color="cyan">Ollama</Text>: Installez Ollama et lancez
-                "ollama pull mistral:7b"
+                "ollama pull devstral:24b"
               </Text>
             </Box>
             <Box>

@@ -166,24 +166,29 @@ export class DiffAnalyzer {
   /**
    * Matches function declarations in various languages
    */
-  private matchFunction(line: string): { name: string; type: "function" | "method" } | null {
+  private matchFunction(
+    line: string,
+  ): { name: string; type: "function" | "method" } | null {
     // TypeScript/JavaScript function
     // function foo(), const foo = (), async function foo(), export function foo()
-    const tsFuncPattern = /(?:export\s+)?(?:async\s+)?(?:function\s+|const\s+|let\s+|var\s+)(\w+)\s*(?:=\s*(?:async\s+)?\(|=\s*(?:async\s+)?function|\()/;
+    const tsFuncPattern =
+      /(?:export\s+)?(?:async\s+)?(?:function\s+|const\s+|let\s+|var\s+)(\w+)\s*(?:=\s*(?:async\s+)?\(|=\s*(?:async\s+)?function|\()/;
     const tsFuncMatch = line.match(tsFuncPattern);
     if (tsFuncMatch) {
       return { name: tsFuncMatch[1], type: "function" };
     }
 
     // Arrow functions: const foo = () =>
-    const arrowPattern = /(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/;
+    const arrowPattern =
+      /(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/;
     const arrowMatch = line.match(arrowPattern);
     if (arrowMatch) {
       return { name: arrowMatch[1], type: "function" };
     }
 
     // Method declarations: foo() {, async foo() {, private foo() {
-    const methodPattern = /(?:public|private|protected|static|async)?\s*(\w+)\s*\([^)]*\)\s*[:{]/;
+    const methodPattern =
+      /(?:public|private|protected|static|async)?\s*(\w+)\s*\([^)]*\)\s*[:{]/;
     const methodMatch = line.match(methodPattern);
     if (methodMatch && !line.includes("if") && !line.includes("while")) {
       return { name: methodMatch[1], type: "method" };
@@ -230,7 +235,9 @@ export class DiffAnalyzer {
   /**
    * Matches type/interface declarations
    */
-  private matchType(line: string): { name: string; type: "interface" | "type" } | null {
+  private matchType(
+    line: string,
+  ): { name: string; type: "interface" | "type" } | null {
     // TypeScript interface
     const interfacePattern = /(?:export\s+)?interface\s+(\w+)/;
     const interfaceMatch = line.match(interfacePattern);
@@ -283,7 +290,10 @@ export class DiffAnalyzer {
   /**
    * Detects common change patterns in the diff
    */
-  private detectChangePatterns(diff: string, stagedFiles: string[]): ChangePattern[] {
+  private detectChangePatterns(
+    diff: string,
+    stagedFiles: string[],
+  ): ChangePattern[] {
     const patterns: ChangePattern[] = [];
 
     // Identify source code files vs test files
@@ -310,7 +320,8 @@ export class DiffAnalyzer {
 
     // Test patterns - but lower confidence if there are significant source code changes
     if (testFiles.length > 0) {
-      const testAdditions = (diff.match(/\+.*(?:it|test|describe)\(/g) || []).length;
+      const testAdditions = (diff.match(/\+.*(?:it|test|describe)\(/g) || [])
+        .length;
       // If there are more source files than test files, tests are likely supporting changes
       const isTestPrimary = testFiles.length >= sourceFiles.length;
 
@@ -334,7 +345,7 @@ export class DiffAnalyzer {
     // Bug fix patterns
     const bugFixIndicators = [
       /\+.*(?:fix|bug|issue|error|correct)/i,
-      /\-.*(?:broken|incorrect|wrong|buggy)/i,
+      /-.*(?:broken|incorrect|wrong|buggy)/i,
     ];
     const bugFixCount = bugFixIndicators.reduce(
       (count, pattern) => count + (diff.match(pattern) || []).length,
@@ -364,7 +375,8 @@ export class DiffAnalyzer {
 
     // Documentation patterns
     const docFiles = stagedFiles.filter(
-      (f) => f.endsWith(".md") || f.includes("README") || f.includes("CHANGELOG"),
+      (f) =>
+        f.endsWith(".md") || f.includes("README") || f.includes("CHANGELOG"),
     );
     const codeFiles = stagedFiles.filter(
       (f) =>
@@ -400,7 +412,10 @@ export class DiffAnalyzer {
         f.endsWith(".toml") ||
         f.includes("config"),
     );
-    if (configFiles.length > 0 && !stagedFiles.some((f) => f.includes("package"))) {
+    if (
+      configFiles.length > 0 &&
+      !stagedFiles.some((f) => f.includes("package"))
+    ) {
       patterns.push({
         type: "configuration",
         description: `Modified configuration files`,
@@ -412,7 +427,10 @@ export class DiffAnalyzer {
     // Dependency updates
     if (
       stagedFiles.some(
-        (f) => f.includes("package.json") || f.includes("go.mod") || f.includes("requirements.txt"),
+        (f) =>
+          f.includes("package.json") ||
+          f.includes("go.mod") ||
+          f.includes("requirements.txt"),
       )
     ) {
       patterns.push({
@@ -424,7 +442,8 @@ export class DiffAnalyzer {
     }
 
     // Type definition patterns
-    const typeDefCount = (diff.match(/\+.*(?:interface|type)\s+\w+/g) || []).length;
+    const typeDefCount = (diff.match(/\+.*(?:interface|type)\s+\w+/g) || [])
+      .length;
     if (typeDefCount > 1) {
       patterns.push({
         type: "type_definition",
@@ -448,8 +467,9 @@ export class DiffAnalyzer {
     }
 
     // Performance patterns
-    const perfIndicators = (diff.match(/\+.*(?:performance|optimize|cache|lazy|memo)/gi) || [])
-      .length;
+    const perfIndicators = (
+      diff.match(/\+.*(?:performance|optimize|cache|lazy|memo)/gi) || []
+    ).length;
     if (perfIndicators > 0) {
       patterns.push({
         type: "performance",
@@ -460,17 +480,23 @@ export class DiffAnalyzer {
     }
 
     // Feature addition - detect new classes/services/modules
-    const newClassCount = (diff.match(/\+\s*(?:export\s+)?(?:class|interface)\s+\w+/g) || [])
-      .length;
+    const newClassCount = (
+      diff.match(/\+\s*(?:export\s+)?(?:class|interface)\s+\w+/g) || []
+    ).length;
     const newFileCount = stagedFiles.filter((f) => {
       // Check if file appears to be new (many additions, few deletions in its section)
-      const fileSection = diff.split(`diff --git a/${f}`)[1]?.split("diff --git")[0] || "";
+      const fileSection =
+        diff.split(`diff --git a/${f}`)[1]?.split("diff --git")[0] || "";
       const adds = (fileSection.match(/^\+[^+]/gm) || []).length;
       const dels = (fileSection.match(/^-[^-]/gm) || []).length;
       return adds > 10 && dels < 5;
     }).length;
 
-    if (newClassCount > 0 || newFileCount > 0 || sourceFiles.length > testFiles.length) {
+    if (
+      newClassCount > 0 ||
+      newFileCount > 0 ||
+      sourceFiles.length > testFiles.length
+    ) {
       const addedLines = (diff.match(/^\+[^+]/gm) || []).length;
       const removedLines = (diff.match(/^-[^-]/gm) || []).length;
 
@@ -536,7 +562,10 @@ export class DiffAnalyzer {
   /**
    * Analyzes each file's changes to determine importance and change type
    */
-  private analyzeFileChanges(diff: string, stagedFiles: string[]): FileChange[] {
+  private analyzeFileChanges(
+    diff: string,
+    stagedFiles: string[],
+  ): FileChange[] {
     const fileChanges: FileChange[] = [];
 
     // Deduplicate files (Git can sometimes list files multiple times)
@@ -565,7 +594,9 @@ export class DiffAnalyzer {
         (file.endsWith(".ts") || file.endsWith(".tsx") || file.endsWith(".js"));
 
       const isCoreDomain =
-        file.includes("/domain/") || file.includes("/services/") || file.includes("/use-cases/");
+        file.includes("/domain/") ||
+        file.includes("/services/") ||
+        file.includes("/use-cases/");
 
       const totalChanges = linesAdded + linesRemoved;
 
@@ -693,12 +724,20 @@ export class DiffAnalyzer {
     symbolCount: number,
   ): "simple" | "moderate" | "complex" {
     // Simple: 1-2 files, few changes, few symbols
-    if (summary.filesChanged <= 2 && summary.totalChanges < 50 && symbolCount <= 3) {
+    if (
+      summary.filesChanged <= 2 &&
+      summary.totalChanges < 50 &&
+      symbolCount <= 3
+    ) {
       return "simple";
     }
 
     // Complex: many files, many changes, or many symbols
-    if (summary.filesChanged > 5 || summary.totalChanges > 200 || symbolCount > 10) {
+    if (
+      summary.filesChanged > 5 ||
+      summary.totalChanges > 200 ||
+      symbolCount > 10
+    ) {
       return "complex";
     }
 

@@ -1,8 +1,8 @@
+import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import {
   AIGenerationError,
   AIProviderError,
 } from "../../shared/errors/index.js";
-import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import type { AIGeneratedCommit } from "../../types.js";
 
 /**
