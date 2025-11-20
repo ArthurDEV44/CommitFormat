@@ -6,437 +6,186 @@
 [![npm downloads](https://img.shields.io/npm/dm/gortex-cli.svg)](https://www.npmjs.com/package/gortex-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Premium interactive CLI for crafting perfect conventional commits**
+CLI for building reliable, assisted, and auditable conventional commits.
 
-[Installation](#-installation) • [Usage](#-usage)
+[Installation](#installation) • [Usage](#usage) • [Architecture](#architecture)
 
 </div>
 
 <img src="assets/images/gortex-cli.png" alt="Gortex CLI Banner" width="100%">
 
----
+## Project goal
 
-## 🌟 What Makes Gortex Special?
+Gortex CLI makes the commit phase as rigorous as the implementation phase.
 
-**Gortex CLI** isn't just another Git tool. It's a **premium, high-end developer experience** that transforms the mundane task of committing code into a delightful, guided workflow.
+- **Guidance** – a multi-step flow that surfaces the right checks (branch, files, message, push)  
+- **Consistency** – a builder aligned with the Conventional Commits spec, with real-time validation  
+- **Contextual help** – AI-assisted generation (local or remote) and visual previews of staged files
 
-### ✨ Premium Features
+The outcome is short, precise, review-friendly commits without leaving the terminal.
 
-🎨 **Stunning Visual Design**
-- Gradient-powered interface with smooth animations
-- Professional branding with animated logo
-- Color-coded feedback and intelligent spacing
+## Value proposition
 
-⚡ **Lightning Fast**
-- 60fps smooth animations
-- <100ms first paint
-- Optimized 57KB bundle
+- **Traceability** – every commit documents the need and scope  
+- **Standardization** – conventions are enforced while the developer acts, not via a late lint  
+- **Controlled AI** – Gortex auto-detects Ollama, Mistral, or OpenAI and stays local whenever possible  
+- **End-to-end workflow** – branch selection, targeted staging, message generation, optional push
 
-🎯 **Intelligent UX**
-- Vim keybindings support (j/k/h/l)
-- Quick actions (a=select all, i=invert)
-- Contextual descriptions everywhere
-- Real-time validation with helpful errors
+## Key capabilities
 
-📦 **Complete Git Workflow**
-- Branch selection/creation
-- Visual file diff preview
-- Commit message builder
-- Push to remote (optional)
+- Interactive 8-step workflow (branch ➜ files ➜ staging ➜ generation ➜ message ➜ confirmation ➜ push ➜ recap)
+- Diff previews for staged files
+- Commit generation via Ollama, Mistral AI, or OpenAI with automatic fallback to manual editing
+- Keyboard-first navigation (Tab, arrows, Vim j/k/h/l, quick actions `a`, `i`)
+- Real-time validation of conventional commits, including breaking-change handling
+- `.gortexrc` configuration (Cosmiconfig) to tune AI providers, conventions, and git preferences
 
-🤖 **AI-Powered Commits (Integrated)**
-- Choose AI or Manual generation directly in the workflow
-- Support for Ollama (local), Mistral AI, and OpenAI
-- Auto-detection of available providers
-- Smart fallback to manual if AI unavailable
-- Context-aware suggestions with confidence scoring
-- 100% private with local Ollama
+## Architecture
 
----
+| Layer | Role | Key tech |
+|-------|------|----------|
+| Domain | Entities, value objects, contracts | TypeScript |
+| Application | Use cases and orchestration | Services, DTOs, validation |
+| Infrastructure | Git, AI providers, DI | simple-git, Ollama/OpenAI/Mistral adapters |
+| Presentation | CLI interface | Ink, Commander, React components |
 
-## 🚀 Installation
+Reference points:
 
-Choose your favorite package manager:
+- 918 tests across 67 files (91.63 % coverage)  
+- ~177.62 KB ESM bundle, ~1203 ms build  
+- Node ≥ 18, distributed via npm/pnpm/yarn/bun  
+- Full design notes in `docs/ARCHITECTURE.md`
 
-### NPM
+## Installation
+
 ```bash
+# npm
 npm install -g gortex-cli
-```
 
-### PNPM (Recommended)
-```bash
+# pnpm (recommended)
 pnpm add -g gortex-cli
-```
 
-### Yarn
-```bash
+# yarn
 yarn global add gortex-cli
-```
 
-### Bun
-```bash
+# bun
 bun add -g gortex-cli
-```
 
-### Try without installing
-```bash
+# try without installing
 npx gortex-cli
 ```
 
----
+## Usage
 
-## 💫 Usage
-
-### Interactive Workflow with Tabs (Default)
-
-Simply run in your Git repository:
+Run inside a Git repository:
 
 ```bash
 gortex
 ```
 
-This launches the **premium interactive workflow with tabs**:
+The guided flow covers:
 
-**📝 Commit Tab (8-step workflow):**
-1. 🌿 **Branch Selection** - Choose or create a branch
-2. 📦 **File Selection** - Preview and select files to stage
-3. 📥 **Staging** - Files are staged automatically
-4. 🤖 **Generation Mode** - Choose AI (Ollama/Mistral/OpenAI) or Manual
-5. ✨ **Message Creation** - AI-generated or manual based on your choice
-6. ✓ **Confirmation** - Review and confirm your commit
-7. 🚀 **Push** - Optionally push to remote
-8. 🎉 **Success** - Completion summary
+1. Selecting or creating the branch  
+2. Picking files to commit with inline diff previews  
+3. Staging the selected items  
+4. Choosing AI or manual message creation  
+5. Validating the message (including breaking changes)  
+6. Confirming, optionally pushing, then reviewing the recap
 
-**Navigation:**
-- `Tab` or `→` to switch between tabs
-- `1-2` for direct tab access
-- `h/l` for vim-style navigation
-
----
-
-### 🤖 Using Ollama with Gortex CLI
-
-Ollama is the **recommended AI provider** for Gortex CLI - it's free, fast, and 100% private.
-
-#### Installation
-
-**macOS & Linux:**
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-**Windows:**
-Download from [ollama.com/download](https://ollama.com/download)
-
-#### Essential Commands for Gortex
-
-**1. Download a model (required before first use):**
-```bash
-# Recommended for Gortex (4GB RAM)
-ollama pull mistral:7b
-
-# Alternative - lighter model (1.6GB RAM)
-ollama pull phi:2.7b
-
-# Alternative - larger model (7GB RAM, better quality)
-ollama pull mistral-nemo:12b
-```
-
-**2. Start Ollama service:**
-```bash
-ollama serve
-```
-> **Note:** Ollama must be running for Gortex to use it. The service runs on `http://localhost:11434`
-
-**3. Verify your models:**
-```bash
-ollama ls
-```
-Output:
-```
-NAME              ID              SIZE    MODIFIED
-mistral:7b        abc123def456    4.1 GB  2 hours ago
-phi:2.7b          def789ghi012    1.6 GB  1 day ago
-```
-
-**4. Test a model:**
-```bash
-ollama run mistral:7b "Generate a git commit message for adding user authentication"
-```
-
-**5. Check running models:**
-```bash
-ollama ps
-```
-
-**6. Stop a model (free memory):**
-```bash
-ollama stop mistral:7b
-```
-
-**7. Remove a model:**
-```bash
-ollama rm mistral:7b
-```
-
-#### Recommended Models for Gortex
-
-| Model | Size | RAM Required | Quality | Use Case |
-|-------|------|--------------|---------|----------|
-| **mistral:7b** | 4.1 GB | 8 GB | ⭐⭐⭐⭐ | **Recommended** - Best balance |
-| phi:2.7b | 1.6 GB | 4 GB | ⭐⭐⭐ | Laptops with limited RAM |
-| mistral-nemo:12b | 7 GB | 16 GB | ⭐⭐⭐⭐⭐ | Powerful workstations |
-| codestral:22b | 13 GB | 24 GB | ⭐⭐⭐⭐⭐ | Code-focused (larger commits) |
-
-#### Troubleshooting Ollama
-
-**Problem: "Ollama not available"**
-```bash
-# Check if Ollama is running
-ollama ps
-
-# If not running, start it
-ollama serve
-```
-
-**Problem: "Model not found"**
-```bash
-# List installed models
-ollama ls
-
-# Pull the model if missing
-ollama pull mistral:7b
-```
-
-**Problem: "Connection refused"**
-```bash
-# Check Ollama is running on default port
-curl http://localhost:11434/api/tags
-
-# If different port, update .gortexrc baseUrl
-```
-
-**Problem: "Slow generation"**
-- Use a smaller model: `phi:2.7b`
-- Increase timeout in config: `"timeout": 60000`
-- Check CPU usage: Ollama uses CPU if no GPU
-
-#### Tips for Best Results
-
-1. **Keep Ollama running**: Start `ollama serve` in background
-2. **Use appropriate model**: Match model size to your machine
-3. **Clear commits**: Smaller, focused changes = better AI suggestions
-4. **First run is slower**: Model loads on first use (cached after)
-
-#### Why Ollama for Gortex?
-
-- ✅ **100% Private** - Your code never leaves your machine
-- ✅ **Free** - No API costs
-- ✅ **Fast** - Local generation (1-3s on average CPU)
-- ✅ **Offline** - Works without internet
-- ✅ **No limits** - Unlimited commits
-- ✅ **No API keys** - Zero configuration hassle
-
-### Help
+Helpful commands:
 
 ```bash
 gortex --help
-gortex help-format  # Conventional commits format guide
+gortex help-format
 ```
 
----
+## AI integration
 
-## 🎯 Conventional Commits Format
+- **Ollama** (recommended):
+  ```bash
+  curl -fsSL https://ollama.com/install.sh | sh
+  ollama pull mistral:7b
+  ollama serve   # http://localhost:11434
+  ```
+- **Mistral / OpenAI**: automatically used when API keys are detected in the environment or config.
+- Fallback sequence:
+  1. Ollama when available (local & private)  
+  2. Mistral / OpenAI depending on available keys  
+  3. Manual editing if no provider responds
 
-### Commit Types
+Tips:
 
-| Type | Icon | Description |
-|------|------|-------------|
-| **feat** | ✨ | New feature |
-| **fix** | 🐛 | Bug fix |
-| **docs** | 📝 | Documentation |
-| **style** | 💄 | Formatting, missing semicolons |
-| **refactor** | ♻️ | Code refactoring |
-| **perf** | ⚡ | Performance improvement |
-| **test** | ✅ | Adding/updating tests |
-| **build** | 📦 | Build system changes |
-| **ci** | 👷 | CI configuration changes |
-| **chore** | 🔧 | Other changes |
+- Keep `ollama serve` running to avoid repeated cold starts.  
+- Match model size to your hardware (`phi:2.7b` for lightweight laptops, `mistral-nemo:12b` for workstations).  
+- Keep commits focused so AI suggestions stay accurate.
 
-### Examples
+## Conventional commits reference
 
-```bash
+| Type | Purpose |
+|------|---------|
+| `feat` | new feature |
+| `fix` | bug fix |
+| `docs` | documentation |
+| `style` | formatting / non-functional |
+| `refactor` | internal restructuring |
+| `perf` | performance |
+| `test` | tests |
+| `build` | build/package |
+| `ci` | continuous integration |
+| `chore` | maintenance |
+
+Examples:
+
+```
 feat(auth): add OAuth2 authentication
 fix(api): resolve timeout on large requests
 docs(readme): update installation instructions
 refactor(core): simplify error handling
 ```
 
-### Breaking Changes
+Breaking change:
 
-Add `!` after type/scope:
-
-```bash
+```
 feat(api)!: change authentication method
 
 BREAKING CHANGE: Previous auth tokens are now invalid
 ```
 
----
+## Contributing
 
-## 🎨 Why Premium Design Matters
+1. Fork + feature branch  
+2. `pnpm install`, `pnpm dev`  
+3. Run `pnpm test`, `pnpm typecheck`, `pnpm lint` before submitting  
+4. Use Gortex CLI to format your own commits
 
-### Developer Experience = Product Quality
+Additional docs:
 
-Just like your application's UI/UX matters to your users, your **developer tools' UX matters to you**.
+- `CONTRIBUTING.md`
+- `docs/ARCHITECTURE.md`
+- `docs/USE_CASES.md`
+- `docs/MIGRATION_GUIDE.md`
 
-Gortex CLI proves that **CLI tools can be beautiful AND functional**:
-
-✨ **Reduces Cognitive Load**
-- Clear visual hierarchy
-- Instant feedback
-- Intuitive navigation
-
-⚡ **Increases Productivity**
-- Vim shortcuts for speed
-- Quick actions (a, i, y/n)
-- Smart validation prevents errors
-
-🎯 **Improves Code Quality**
-- Guided workflow ensures consistency
-- Visual previews prevent mistakes
-- Helpful suggestions teach best practices
-
----
-
-## 🛠️ Technical Stack
-
-Built with modern, battle-tested technologies:
-
-- **[Ink](https://github.com/vadimdemedes/ink)** - React for CLI interfaces
-- **[React](https://react.dev/)** - Component-based architecture
-- **TypeScript** - Type safety throughout
-- **[simple-git](https://github.com/steveukx/git-js)** - Git operations
-- **[Commander](https://github.com/tj/commander.js)** - CLI framework
-- **[Cosmiconfig](https://github.com/davidtheclark/cosmiconfig)** - Configuration management
-
-### Premium UI Libraries
-
-- **ink-gradient** - Gradient animations
-- **ink-big-text** - ASCII art branding
-- **gradient-string** - Colored text
-- **chalk** - Terminal styling
-
-### Architecture
-
-Gortex CLI uses **Clean Architecture** with **Dependency Injection** for a maintainable, testable, and scalable codebase:
-
-- **Domain Layer** - Pure business logic (Entities, Value Objects, Repository interfaces)
-- **Application Layer** - Use cases orchestrating business logic
-- **Infrastructure Layer** - Concrete implementations (Git, AI providers, DI container)
-- **Presentation Layer** - React components and CLI commands
-
-**Key Benefits:**
-- ✅ **403 tests** (350 unit + 53 integration) with 92% coverage
-- ✅ **Fully decoupled** - Easy to test, maintain, and extend
-- ✅ **Type-safe** - TypeScript throughout all layers
-- ✅ **Production-ready** - Battle-tested architecture
-
-📚 Learn more: [Architecture Documentation](docs/ARCHITECTURE.md)
-
----
-
-## 📊 Performance & Quality
-
-| Metric | Value |
-|--------|-------|
-| **Bundle Size** | 166.92 KB (optimized) |
-| **Build Time** | ~1.2s (ESM + DTS) |
-| **First Paint** | <100ms |
-| **Animations** | 60fps smooth |
-| **Node Version** | ≥18.0.0 |
-| **Tests** | 403 tests (92% coverage) |
-| **Architecture** | Clean Architecture + DI |
-| **Type Safety** | 100% TypeScript |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! We follow Clean Architecture principles and maintain high code quality standards.
-
-📚 **Read our guides:**
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
-- [Architecture Documentation](docs/ARCHITECTURE.md) - Understand the architecture
-- [Use Cases Documentation](docs/USE_CASES.md) - Learn about use cases
-- [Migration Guide](docs/MIGRATION_GUIDE.md) - Migration patterns
-
-### Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/ArthurDEV44/gortex-cli.git
-cd gortex-cli
-
-# Install dependencies
-pnpm install
-
-# Run in development mode
-pnpm dev
-
-# Build
-pnpm build
-
-# Run tests
-pnpm test
-
-# Run tests with coverage
-pnpm test -- --coverage
-
-# Type check
-pnpm typecheck
-```
-
-### Project Structure
+Repository overview:
 
 ```
 gortex-cli/
 ├── src/
-│   ├── domain/          # Business logic (entities, value objects, interfaces)
-│   ├── application/     # Use cases, DTOs, mappers
-│   ├── infrastructure/  # Implementations (repositories, AI, DI)
-│   ├── components/      # React components (presentation)
-│   └── commands/        # CLI commands
-├── docs/                # Documentation
-│   ├── ARCHITECTURE.md  # Architecture guide
-│   ├── USE_CASES.md     # Use cases documentation
-│   └── MIGRATION_GUIDE.md
-└── __tests__/           # Tests (unit + integration)
+│   ├── domain/
+│   ├── application/
+│   ├── infrastructure/
+│   ├── components/
+│   └── commands/
+├── docs/
+└── __tests__/
 ```
 
----
-
-## 📝 License
+## License
 
 MIT © [Arthur Jean](https://github.com/ArthurDEV44)
 
----
-
-## 🙏 Acknowledgments
-
-Inspired by the amazing work of:
-- **Vercel** for setting the standard in CLI UX
-- **vadimdemedes** for creating Ink
-- **The Conventional Commits team** for the specification
-
----
-
 <div align="center">
 
-**[⬆ back to top](#-gortex-cli)**
-
-Made with ❤️ by developers, for developers
-
-**Gortex CLI - Where Git Workflow Meets Art** ✨
+**[⬆ back to top](#gortex-cli)**
 
 </div>
+
