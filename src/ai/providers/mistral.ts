@@ -1,3 +1,4 @@
+import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import type { AIConfig, AIGeneratedCommit } from "../../types.js";
 import {
   generateSystemPrompt,
@@ -88,6 +89,7 @@ export class MistralProvider extends BaseAIProvider {
   async generateCommitMessage(
     diff: string,
     context: CommitContext,
+    analysis?: DiffAnalysis,
   ): Promise<AIGeneratedCommit> {
     // Vérifie la disponibilité
     const available = await this.isAvailable();
@@ -99,7 +101,7 @@ export class MistralProvider extends BaseAIProvider {
     }
 
     try {
-      // Construit la requête
+      // Construit la requête avec l'analyse du diff
       const request: MistralRequest = {
         model: this.model,
         messages: [
@@ -109,7 +111,7 @@ export class MistralProvider extends BaseAIProvider {
           },
           {
             role: "user",
-            content: generateUserPrompt(diff, context),
+            content: generateUserPrompt(diff, context, analysis),
           },
         ],
         temperature: this.temperature,

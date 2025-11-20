@@ -5,6 +5,7 @@
  */
 
 import type { CommitMessage } from "../entities/CommitMessage.js";
+import type { DiffAnalysis } from "../services/DiffAnalyzer.js";
 
 export interface AIGenerationContext {
   diff: string;
@@ -13,6 +14,7 @@ export interface AIGenerationContext {
   recentCommits?: string[];
   availableTypes: string[];
   availableScopes?: string[];
+  analysis?: DiffAnalysis; // Optional structured analysis of the diff
 }
 
 export interface AIGenerationResult {

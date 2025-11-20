@@ -97,7 +97,7 @@ export const DEFAULT_AI_CONFIG: AIConfig = {
   enabled: false,
   provider: "ollama",
   ollama: {
-    model: "mistral:7b",
+    model: "devstral:24b",
     baseUrl: "http://localhost:11434",
     timeout: 30000,
   },

@@ -8,6 +8,7 @@ import type {
   IAIProvider,
 } from "../../domain/repositories/IAIProvider.js";
 import type { IGitRepository } from "../../domain/repositories/IGitRepository.js";
+import { DiffAnalyzer } from "../../domain/services/DiffAnalyzer.js";
 import { GitRepositoryImpl } from "../../infrastructure/repositories/GitRepositoryImpl.js";
 import { getCommitTypeValues } from "../../shared/constants/commit-types.js";
 import { SIZE_LIMITS } from "../../shared/constants/limits.js";
@@ -20,7 +21,11 @@ export interface GenerateAICommitRequest {
 }
 
 export class GenerateAICommitUseCase {
-  constructor(private readonly gitRepository: IGitRepository) {}
+  private readonly diffAnalyzer: DiffAnalyzer;
+
+  constructor(private readonly gitRepository: IGitRepository) {
+    this.diffAnalyzer = new DiffAnalyzer();
+  }
 
   /**
    * Executes the AI commit generation use case
@@ -74,7 +79,14 @@ export class GenerateAICommitUseCase {
         ? await this.gitRepository.getExistingScopes()
         : undefined;
 
-      // Build AI generation context
+      // Analyze the diff to extract structured metadata
+      // This analysis guides the AI to generate more precise commit messages
+      const diffAnalysis = this.diffAnalyzer.analyze(
+        diffForAI,
+        diffContext.files,
+      );
+
+      // Build AI generation context with diff analysis
       const aiContext: AIGenerationContext = {
         diff: diffForAI,
         files: diffContext.files,
@@ -82,6 +94,7 @@ export class GenerateAICommitUseCase {
         recentCommits: diffContext.recentCommits,
         availableTypes: getCommitTypeValues(),
         availableScopes,
+        analysis: diffAnalysis,
       };
 
       // Generate commit message with AI

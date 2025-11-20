@@ -1,3 +1,4 @@
+import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import {
   AIGenerationError,
   AIProviderError,
@@ -12,10 +13,12 @@ export interface AIProvider {
    * Génère un message de commit basé sur les changements
    * @param diff Le diff git des changements
    * @param context Contexte additionnel (fichiers modifiés, branche, etc.)
+   * @param analysis Analyse structurée du diff (optionnel mais recommandé)
    */
   generateCommitMessage(
     diff: string,
     context: CommitContext,
+    analysis?: DiffAnalysis,
   ): Promise<AIGeneratedCommit>;
 
   /**

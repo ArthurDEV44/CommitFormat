@@ -7,7 +7,7 @@
  */
 export const OLLAMA_DEFAULTS = {
   BASE_URL: "http://localhost:11434",
-  MODEL: "mistral:7b",
+  MODEL: "devstral:24b",
   TIMEOUT: 30000,
 } as const;
 

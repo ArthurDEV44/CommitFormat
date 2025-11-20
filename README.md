@@ -104,7 +104,7 @@ gortex help-format
 - **Ollama** (recommended):
   ```bash
   curl -fsSL https://ollama.com/install.sh | sh
-  ollama pull mistral:7b
+  ollama pull devstral:24b
   ollama serve   # http://localhost:11434
   ```
 - **Mistral / OpenAI**: automatically used when API keys are detected in the environment or config.

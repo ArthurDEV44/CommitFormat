@@ -1,3 +1,4 @@
+import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import { COMMIT_LIMITS } from "../../shared/constants/index.js";
 import type { AIGeneratedCommit } from "../../types.js";
 import type { AIProvider, CommitContext } from "./base.js";
@@ -31,6 +32,7 @@ export abstract class BaseAIProvider implements AIProvider {
   abstract generateCommitMessage(
     diff: string,
     context: CommitContext,
+    analysis?: DiffAnalysis,
   ): Promise<AIGeneratedCommit>;
 
   /**
