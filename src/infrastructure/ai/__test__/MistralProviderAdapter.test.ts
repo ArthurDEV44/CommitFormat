@@ -157,7 +157,8 @@ describe('MistralProviderAdapter', () => {
           recentCommits: ['recent 1'],
           availableTypes: ['feat'],
           availableScopes: ['core'],
-        }
+        },
+        undefined // analysis parameter (optional)
       );
     });
 

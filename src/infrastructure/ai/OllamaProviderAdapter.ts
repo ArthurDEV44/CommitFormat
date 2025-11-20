@@ -39,10 +39,11 @@ export class OllamaProviderAdapter implements IAIProvider {
       availableScopes: context.availableScopes,
     };
 
-    // Call the legacy provider
+    // Call the legacy provider with diff analysis
     const result = await this.provider.generateCommitMessage(
       context.diff,
       legacyContext,
+      context.analysis,
     );
 
     // Convert result to domain entity using service
@@ -56,7 +57,7 @@ export class OllamaProviderAdapter implements IAIProvider {
 
     return {
       message: commitMessage,
-      confidence: undefined, // Ollama doesn't provide confidence
+      confidence: result.confidence, // Ollama provides confidence from AI response
     };
   }
 

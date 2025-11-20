@@ -4,6 +4,7 @@
  * Part of the Domain layer - contains no implementation details
  */
 
+import type { DiffAnalysis } from "../services/DiffAnalyzer.js";
 import type { CommitMessage } from "../entities/CommitMessage.js";
 
 export interface AIGenerationContext {
@@ -13,6 +14,7 @@ export interface AIGenerationContext {
   recentCommits?: string[];
   availableTypes: string[];
   availableScopes?: string[];
+  analysis?: DiffAnalysis; // Optional structured analysis of the diff
 }
 
 export interface AIGenerationResult {

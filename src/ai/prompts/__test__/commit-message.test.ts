@@ -41,9 +41,9 @@ describe('AI Prompts', () => {
 
     it('should include instructions for analyzing diff', () => {
       const prompt = generateSystemPrompt(['feat']);
-      expect(prompt).toContain('diff');
-      expect(prompt).toContain('changements');
-      expect(prompt).toContain('contexte');
+      expect(prompt).toContain('analyse structurée');
+      expect(prompt).toContain('NOMS EXACTS');
+      expect(prompt).toContain('PATTERN DE CHANGEMENT');
     });
   });
 

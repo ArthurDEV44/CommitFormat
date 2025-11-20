@@ -1,3 +1,4 @@
+import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import type { AIConfig, AIGeneratedCommit } from "../../types.js";
 import {
   generateSystemPrompt,
@@ -95,6 +96,7 @@ export class OllamaProvider extends BaseAIProvider {
   async generateCommitMessage(
     diff: string,
     context: CommitContext,
+    analysis?: DiffAnalysis,
   ): Promise<AIGeneratedCommit> {
     // Vérifie la disponibilité
     const available = await this.isAvailable();
@@ -126,7 +128,7 @@ export class OllamaProvider extends BaseAIProvider {
           },
           body: {
             type: "string",
-            description: "Optional detailed description",
+            description: "Detailed description explaining WHY this change was made and WHAT it introduces architecturally. Include if the change is complex (multiple files, new system, refactoring). Explain benefits and impacts.",
           },
           breaking: {
             type: "boolean",
@@ -138,8 +140,8 @@ export class OllamaProvider extends BaseAIProvider {
           },
           confidence: {
             type: "integer",
-            description: "Confidence level (0-100)",
-            minimum: 0,
+            description: "Confidence level (0-100). IMPORTANT: Use 70-90 for clear changes, 50-69 for uncertain ones. NEVER use 0.",
+            minimum: 50,
             maximum: 100,
           },
           reasoning: {
@@ -150,7 +152,9 @@ export class OllamaProvider extends BaseAIProvider {
         required: ["type", "subject", "breaking", "confidence"],
       };
 
-      // Construit la requête
+      // Construit la requête avec l'analyse du diff
+      const userPrompt = generateUserPrompt(diff, context, analysis);
+
       const request: OllamaRequest = {
         model: this.model,
         messages: [
@@ -160,7 +164,7 @@ export class OllamaProvider extends BaseAIProvider {
           },
           {
             role: "user",
-            content: generateUserPrompt(diff, context),
+            content: userPrompt,
           },
         ],
         stream: false,
