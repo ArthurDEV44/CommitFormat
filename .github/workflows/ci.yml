@@ -186,7 +186,8 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'pull_request'
+    # Only run on PRs targeting contributors branch (from external contributors)
+    if: github.event_name == 'pull_request' && github.base_ref == 'contributors'
 
     steps:
       - name: Checkout code
