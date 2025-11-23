@@ -4,13 +4,9 @@ on:
   pull_request:
     branches:
       - main
-      - dev
-      - contributors
   push:
     branches:
       - main
-      - dev
-      - contributors
 
 jobs:
   test:
