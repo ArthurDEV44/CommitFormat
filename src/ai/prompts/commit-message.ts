@@ -1,6 +1,19 @@
 import type { DiffAnalysis } from "../../domain/services/DiffAnalyzer.js";
 import type { AIGeneratedCommit } from "../../types.js";
 import type { CommitContext } from "../providers/base.js";
+import type { CommitExample } from "../examples/commit-samples.js";
+
+/**
+ * Interface pour l'analyse de raisonnement Chain-of-Thought
+ */
+export interface ReasoningAnalysis {
+  architecturalContext: string;
+  changeIntention: string;
+  changeNature: string;
+  keySymbols: string[];
+  suggestedType: string;
+  complexityJustification: string;
+}
 
 /**
  * Génère le prompt système pour l'AI
@@ -70,12 +83,51 @@ Exemples de messages SÉMANTIQUES vs TECHNIQUES:
 }
 
 /**
+ * Formate des exemples few-shot annotés pour le prompt
+ */
+export function formatFewShotExamples(examples: CommitExample[]): string {
+  const parts: string[] = [];
+
+  parts.push("");
+  parts.push("<few_shot_examples>");
+  parts.push(
+    "  <!-- Exemples annotés de qualité pour guider la génération -->",
+  );
+  parts.push(
+    "  <!-- Ces exemples montrent des messages SÉMANTIQUES (focus sur le concept, pas les fichiers) -->",
+  );
+
+  examples.forEach((example, index) => {
+    parts.push(`  <example number="${index + 1}" quality="${example.qualityScore}/5">`);
+    parts.push(`    <change_summary>${example.diffSummary}</change_summary>`);
+    parts.push(`    <commit_message>`);
+    parts.push(`      <type>${example.message.type}</type>`);
+    if (example.message.scope) {
+      parts.push(`      <scope>${example.message.scope}</scope>`);
+    }
+    parts.push(`      <subject>${example.message.subject}</subject>`);
+    if (example.message.body) {
+      parts.push(`      <body>${example.message.body}</body>`);
+    }
+    parts.push(`    </commit_message>`);
+    parts.push(`    <reasoning>${example.reasoning}</reasoning>`);
+    parts.push(`  </example>`);
+  });
+
+  parts.push("</few_shot_examples>");
+
+  return parts.join("\n");
+}
+
+/**
  * Génère le prompt utilisateur avec le diff et le contexte
  */
 export function generateUserPrompt(
   diff: string,
   context: CommitContext,
   analysis?: DiffAnalysis,
+  reasoning?: ReasoningAnalysis,
+  fewShotExamples?: CommitExample[],
 ): string {
   const parts = ["<context>"];
   parts.push(`  <branch>${context.branch}</branch>`);
@@ -94,16 +146,42 @@ export function generateUserPrompt(
   }
   parts.push("</context>");
 
+  // Add few-shot examples if provided (preferred over recent commits)
+  if (fewShotExamples && fewShotExamples.length > 0) {
+    parts.push(formatFewShotExamples(fewShotExamples));
+  }
+
+  // Recent commits are kept as fallback for project-specific style
   if (context.recentCommits && context.recentCommits.length > 0) {
     parts.push("");
     parts.push("<recent_commits>");
     parts.push(
-      "  <!-- Exemples de style de commits récents dans ce projet -->",
+      "  <!-- Exemples de style de commits récents dans ce projet (fallback) -->",
     );
-    context.recentCommits.slice(0, 5).forEach((commit) => {
+    context.recentCommits.slice(0, 3).forEach((commit) => {
       parts.push(`  <commit>${commit}</commit>`);
     });
     parts.push("</recent_commits>");
+  }
+
+  // Add Chain-of-Thought reasoning if available
+  if (reasoning) {
+    parts.push("");
+    parts.push("<reasoning_analysis>");
+    parts.push(
+      "  <!-- Analyse structurée Chain-of-Thought pour guider la génération -->",
+    );
+    parts.push(`  <architectural_context>${reasoning.architecturalContext}</architectural_context>`);
+    parts.push(`  <change_intention>${reasoning.changeIntention}</change_intention>`);
+    parts.push(`  <change_nature>${reasoning.changeNature}</change_nature>`);
+    parts.push("  <key_symbols>");
+    reasoning.keySymbols.forEach((symbol) => {
+      parts.push(`    <symbol>${symbol}</symbol>`);
+    });
+    parts.push("  </key_symbols>");
+    parts.push(`  <suggested_type>${reasoning.suggestedType}</suggested_type>`);
+    parts.push(`  <complexity_justification>${reasoning.complexityJustification}</complexity_justification>`);
+    parts.push("</reasoning_analysis>");
   }
 
   // Add structured diff analysis if available
@@ -298,6 +376,75 @@ export function generateUserPrompt(
         "Le message doit refléter CE QUI a été changé et POURQUOI, pas seulement une description générique.",
     );
   }
+
+  return parts.join("\n");
+}
+
+/**
+ * Génère le prompt système pour l'étape de raisonnement Chain-of-Thought
+ */
+export function generateReasoningSystemPrompt(): string {
+  return `Tu es un expert en analyse de code et architecture logicielle.
+Ta tâche est d'analyser les changements de code et de fournir une analyse structurée qui guidera la génération d'un message de commit.
+
+Réponds UNIQUEMENT en JSON avec cette structure exacte:
+{
+  "architecturalContext": "string - Couche/Module affecté (domain, application, infrastructure, presentation) et rôle de chaque fichier",
+  "changeIntention": "string - Pourquoi ce changement était nécessaire, problème résolu, bénéfice",
+  "changeNature": "string - Type de changement (feature, fix, refactor, etc.) et impact sur l'API",
+  "keySymbols": ["string"] - Liste des symboles centraux (classes, fonctions, interfaces) modifiés,
+  "suggestedType": "feat|fix|refactor|..." - Type de commit suggéré,
+  "complexityJustification": "string - Justification de la complexité (simple/moderate/complex)"
+}`;
+}
+
+/**
+ * Génère le prompt utilisateur pour l'étape de raisonnement Chain-of-Thought
+ */
+export function generateReasoningUserPrompt(
+  diff: string,
+  analysis?: DiffAnalysis,
+  files: string[] = [],
+): string {
+  const parts: string[] = [];
+
+  parts.push("Analyse ces changements de code et fournis une analyse structurée:");
+  parts.push("");
+
+  if (analysis) {
+    parts.push("ANALYSE AUTOMATIQUE:");
+    parts.push(`- Complexité: ${analysis.complexity}`);
+    parts.push(`- Fichiers modifiés: ${analysis.summary.filesChanged}`);
+    parts.push(`- Pattern dominant: ${analysis.changePatterns[0]?.description || "N/A"}`);
+
+    if (analysis.modifiedSymbols.length > 0) {
+      parts.push("- Symboles modifiés:");
+      analysis.modifiedSymbols.slice(0, 10).forEach((symbol) => {
+        parts.push(`  * ${symbol.name} (${symbol.type}) dans ${symbol.file}`);
+      });
+    }
+    parts.push("");
+  }
+
+  parts.push("FICHIERS MODIFIÉS:");
+  files.forEach((file) => {
+    parts.push(`- ${file}`);
+  });
+  parts.push("");
+
+  parts.push("DIFF:");
+  parts.push("```");
+  parts.push(diff);
+  parts.push("```");
+  parts.push("");
+
+  parts.push("INSTRUCTIONS:");
+  parts.push("1. CONTEXTE ARCHITECTURAL: Identifie la couche/le module affecté et le rôle de chaque fichier");
+  parts.push("2. INTENTION DU CHANGEMENT: Explique pourquoi ce changement était nécessaire");
+  parts.push("3. NATURE DU CHANGEMENT: Décris le type et l'impact sur l'API");
+  parts.push("4. SYMBOLES CLÉS: Liste les classes/fonctions/interfaces principales modifiées");
+  parts.push("5. TYPE SUGGÉRÉ: Recommande un type de commit (feat, fix, refactor, etc.)");
+  parts.push("6. JUSTIFICATION COMPLEXITÉ: Explique pourquoi le changement est simple/moderate/complex");
 
   return parts.join("\n");
 }
