@@ -22,8 +22,8 @@ Ce plan traduit les recommandations de `GENERATE_AI_AUDIT.md` en travaux aligné
 
 ## Priorité 3 · Vérification & contexte (Semaine 3)
 
-- [ ] **Self-verification loop**  
-  Après génération du commit, déclencher un prompt de vérification (format JSON) et réinjecter les améliorations dans le DTO avant retour UI.
+- [x] **Self-verification loop**  
+  ✅ Implémenté : Ajout de l'interface `VerificationResult` et des fonctions `generateVerificationSystemPrompt()` / `generateVerificationUserPrompt()` dans `commit-message.ts`. Implémentation de la boucle de vérification dans `GenerateAICommitUseCase` qui évalue automatiquement la qualité du commit généré selon 5 critères (subject sémantique, body explicatif, symboles clés mentionnés, type cohérent, clarté). Si des améliorations sont proposées (`improvedSubject` ou `improvedBody`), elles sont appliquées automatiquement et la confiance est réduite de 10% (x0.9). Gestion d'erreur avec fallback gracieux si la vérification échoue.
 - [ ] **ProjectStyleAnalyzer**  
   Créer `src/domain/services/ProjectStyleAnalyzer.ts`, exposer la dépendance git via `IGitRepository`, puis enrichir `GenerateAICommitUseCase` pour intégrer `<project_style>` dans les prompts.
 - [ ] **Support des guidelines projet**  

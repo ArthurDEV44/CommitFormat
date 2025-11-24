@@ -19,6 +19,17 @@ export interface ReasoningAnalysis {
 }
 
 /**
+ * Interface pour la réponse de vérification self-verification
+ */
+export interface VerificationResult {
+  isGoodQuality: boolean;
+  issues?: string[]; // Liste des problèmes détectés
+  improvedSubject?: string; // Subject amélioré si nécessaire
+  improvedBody?: string; // Body amélioré si nécessaire
+  reasoning: string; // Explication de la vérification
+}
+
+/**
  * Génère le prompt système pour l'AI
  */
 export function generateSystemPrompt(availableTypes: string[]): string {
@@ -577,4 +588,84 @@ export function parseAIResponse(response: string): AIGeneratedCommit {
       `Impossible de parser la réponse JSON: ${error instanceof Error ? error.message : String(error)}\n\nJSON extrait: ${jsonMatch[0].substring(0, 200)}${jsonMatch[0].length > 200 ? "..." : ""}`,
     );
   }
+}
+
+/**
+ * Génère le prompt système pour la vérification self-verification
+ */
+export function generateVerificationSystemPrompt(): string {
+  return `Tu es un expert en qualité de messages de commit conventionnels.
+Ta tâche est d'évaluer et d'améliorer un message de commit généré par une IA.
+
+Tu dois vérifier la qualité selon ces critères:
+1. Subject sémantique (pas de généralisations comme "update files", "fix stuff")
+2. Body qui explique le POURQUOI, pas seulement le QUOI
+3. Symboles clés mentionnés (fonctions, classes, modules modifiés)
+4. Type cohérent avec le pattern de changement détecté
+5. Clarté et précision du message
+
+Réponds en JSON avec cette structure:
+{
+  "isGoodQuality": boolean,
+  "issues": string[] (liste des problèmes détectés, vide si isGoodQuality = true),
+  "improvedSubject": string (optionnel, seulement si le subject peut être amélioré),
+  "improvedBody": string (optionnel, seulement si le body peut être amélioré),
+  "reasoning": string (explication de ta vérification)
+}
+
+Si le message est déjà de bonne qualité, retourne isGoodQuality: true sans améliorations.
+Si des améliorations sont nécessaires, propose improvedSubject et/ou improvedBody.`;
+}
+
+/**
+ * Génère le prompt utilisateur pour la vérification self-verification
+ */
+export function generateVerificationUserPrompt(
+  generatedCommit: {
+    type: string;
+    scope?: string;
+    subject: string;
+    body?: string;
+  },
+  analysis: DiffAnalysis,
+  suggestedType?: string,
+): string {
+  const parts: string[] = [];
+
+  parts.push("Tu as généré ce message de commit:");
+  parts.push(`Type: ${generatedCommit.type}`);
+  parts.push(`Scope: ${generatedCommit.scope ?? "(none)"}`);
+  parts.push(`Subject: ${generatedCommit.subject}`);
+  parts.push(`Body: ${generatedCommit.body ?? "(none)"}`);
+
+  parts.push("\nCONTEXTE:");
+  parts.push(
+    `- Pattern de changement détecté: ${analysis.changePatterns[0]?.description || "N/A"}`,
+  );
+  if (suggestedType) {
+    parts.push(`- Type suggéré par l'analyse: ${suggestedType}`);
+  }
+  parts.push(
+    `- Symboles modifiés: ${analysis.modifiedSymbols.map((s) => s.name).join(", ") || "Aucun"}`,
+  );
+  parts.push(`- Complexité: ${analysis.complexity}`);
+
+  parts.push("\nVérifie la qualité selon ces critères:");
+  parts.push(
+    '1. Subject sémantique (pas "update files", mentionne les symboles clés)',
+  );
+  parts.push(
+    "2. Body qui explique le POURQUOI (intention, raison du changement)",
+  );
+  parts.push("3. Symboles clés mentionnés (fonctions, classes modifiées)");
+  if (suggestedType) {
+    parts.push(`4. Type cohérent avec ${suggestedType} (pattern détecté)`);
+  }
+  parts.push("5. Clarté et précision");
+
+  parts.push(
+    "\nRéponds en JSON avec isGoodQuality, issues, improvedSubject, improvedBody, reasoning.",
+  );
+
+  return parts.join("\n");
 }
