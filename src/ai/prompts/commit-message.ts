@@ -220,7 +220,11 @@ export function generateUserPrompt(
     parts.push("  </summary>");
 
     // Modified symbols (functions, classes, etc.)
-    if (analysis.modifiedSymbols && Array.isArray(analysis.modifiedSymbols) && analysis.modifiedSymbols.length > 0) {
+    if (
+      analysis.modifiedSymbols &&
+      Array.isArray(analysis.modifiedSymbols) &&
+      analysis.modifiedSymbols.length > 0
+    ) {
       parts.push("  <modified_symbols>");
       parts.push(
         "    <!-- UTILISE ces NOMS EXACTS dans ton message de commit -->",
@@ -234,7 +238,11 @@ export function generateUserPrompt(
     }
 
     // Change patterns
-    if (analysis.changePatterns && Array.isArray(analysis.changePatterns) && analysis.changePatterns.length > 0) {
+    if (
+      analysis.changePatterns &&
+      Array.isArray(analysis.changePatterns) &&
+      analysis.changePatterns.length > 0
+    ) {
       parts.push("  <change_patterns>");
       parts.push(
         "    <!-- Patterns détectés, triés par confiance (le premier est le dominant) -->",
@@ -250,7 +258,11 @@ export function generateUserPrompt(
     }
 
     // File relationships
-    if (analysis.fileRelationships && Array.isArray(analysis.fileRelationships) && analysis.fileRelationships.length > 0) {
+    if (
+      analysis.fileRelationships &&
+      Array.isArray(analysis.fileRelationships) &&
+      analysis.fileRelationships.length > 0
+    ) {
       parts.push("  <file_relationships>");
       analysis.fileRelationships.slice(0, 10).forEach((rel) => {
         // Limit to 10
@@ -280,24 +292,26 @@ export function generateUserPrompt(
   // Enhanced instructions using the analysis
   if (analysis) {
     // Use file-level analysis (research-proven approach)
-    const highPriorityFiles = analysis.fileChanges && Array.isArray(analysis.fileChanges)
-      ? analysis.fileChanges.filter(
-          (f) => f.importance === "high",
-        )
-      : [];
-    const _newFiles = analysis.fileChanges && Array.isArray(analysis.fileChanges)
-      ? analysis.fileChanges.filter((f) => f.isNew)
-      : [];
+    const highPriorityFiles =
+      analysis.fileChanges && Array.isArray(analysis.fileChanges)
+        ? analysis.fileChanges.filter((f) => f.importance === "high")
+        : [];
+    const _newFiles =
+      analysis.fileChanges && Array.isArray(analysis.fileChanges)
+        ? analysis.fileChanges.filter((f) => f.isNew)
+        : [];
 
     // Smart pattern selection: prioritize feature_addition over technical patterns
-    let dominantPattern = analysis.changePatterns && Array.isArray(analysis.changePatterns) && analysis.changePatterns.length > 0
-      ? analysis.changePatterns[0]
-      : undefined;
-    const featurePattern = analysis.changePatterns && Array.isArray(analysis.changePatterns)
-      ? analysis.changePatterns.find(
-          (p) => p.type === "feature_addition",
-        )
-      : undefined;
+    let dominantPattern =
+      analysis.changePatterns &&
+      Array.isArray(analysis.changePatterns) &&
+      analysis.changePatterns.length > 0
+        ? analysis.changePatterns[0]
+        : undefined;
+    const featurePattern =
+      analysis.changePatterns && Array.isArray(analysis.changePatterns)
+        ? analysis.changePatterns.find((p) => p.type === "feature_addition")
+        : undefined;
 
     if (
       featurePattern &&
@@ -443,12 +457,20 @@ export function generateReasoningUserPrompt(
     parts.push(`- Complexité: ${analysis.complexity}`);
     parts.push(`- Fichiers modifiés: ${analysis.summary.filesChanged}`);
     parts.push(
-      `- Pattern dominant: ${analysis.changePatterns && Array.isArray(analysis.changePatterns) && analysis.changePatterns.length > 0
-        ? analysis.changePatterns[0]?.description || "N/A"
-        : "N/A"}`,
+      `- Pattern dominant: ${
+        analysis.changePatterns &&
+        Array.isArray(analysis.changePatterns) &&
+        analysis.changePatterns.length > 0
+          ? analysis.changePatterns[0]?.description || "N/A"
+          : "N/A"
+      }`,
     );
 
-    if (analysis.modifiedSymbols && Array.isArray(analysis.modifiedSymbols) && analysis.modifiedSymbols.length > 0) {
+    if (
+      analysis.modifiedSymbols &&
+      Array.isArray(analysis.modifiedSymbols) &&
+      analysis.modifiedSymbols.length > 0
+    ) {
       parts.push("- Symboles modifiés:");
       analysis.modifiedSymbols.slice(0, 10).forEach((symbol) => {
         parts.push(`  * ${symbol.name} (${symbol.type}) dans ${symbol.file}`);

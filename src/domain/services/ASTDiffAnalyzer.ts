@@ -81,4 +81,3 @@ export interface IASTDiffAnalyzer {
    */
   supportsFile(filePath: string): boolean;
 }
-

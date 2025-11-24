@@ -118,7 +118,6 @@ export class ServiceRegistry {
    * @param container DI container
    * @param options Configuration options
    */
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used by registerServices
   private static registerRepositories(
     container: DIContainer,
     options: ServiceRegistrationOptions,
@@ -141,7 +140,6 @@ export class ServiceRegistry {
    * @param container DI container
    * @param options Configuration options
    */
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used by registerServices
   private static registerAIProviders(
     container: DIContainer,
     options: ServiceRegistrationOptions,
@@ -164,7 +162,6 @@ export class ServiceRegistry {
    * Registers use case services
    * @param container DI container
    */
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used by registerServices
   private static registerUseCases(container: DIContainer): void {
     // Register CreateCommitUseCase
     container.registerTransient(

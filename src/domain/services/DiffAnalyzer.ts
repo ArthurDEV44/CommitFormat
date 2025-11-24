@@ -47,8 +47,8 @@ import type {
   ASTAnalysis,
   IASTDiffAnalyzer,
   Refactoring,
-  StructuralChange,
   SemanticImpact,
+  StructuralChange,
 } from "./ASTDiffAnalyzer.js";
 
 export interface DiffAnalysis {
@@ -81,10 +81,7 @@ export class DiffAnalyzer {
    * Analyzes a git diff and extracts structured metadata
    * Optionally uses AST-based analysis if available
    */
-  async analyze(
-    diff: string,
-    stagedFiles: string[],
-  ): Promise<DiffAnalysis> {
+  async analyze(diff: string, stagedFiles: string[]): Promise<DiffAnalysis> {
     const modifiedSymbols = this.extractModifiedSymbols(diff);
     const changePatterns = this.detectChangePatterns(diff, stagedFiles);
     const fileRelationships = this.extractFileRelationships(diff);
@@ -124,7 +121,9 @@ export class DiffAnalyzer {
       };
     }
 
-    const tsFiles = files.filter((f) => this.astAnalyzer!.supportsFile(f));
+    const tsFiles = files.filter(
+      (f) => this.astAnalyzer?.supportsFile(f) ?? false,
+    );
 
     if (tsFiles.length === 0) {
       return {
@@ -153,7 +152,7 @@ export class DiffAnalyzer {
           allStructuralChanges.push(...fileAST.structuralChanges);
           allSemanticImpact.push(...fileAST.semanticImpact);
         }
-      } catch (error) {
+      } catch (_error) {
         // If AST analysis fails for a file, continue with others
         // Fallback to line-based analysis
       }

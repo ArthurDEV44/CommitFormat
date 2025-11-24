@@ -4,4 +4,3 @@
  */
 
 export { TreeSitterASTDiffAnalyzer } from "./TreeSitterASTDiffAnalyzer.js";
-
