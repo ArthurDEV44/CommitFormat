@@ -48,6 +48,9 @@ export class MistralProviderAdapter implements IAIProvider {
           }
         : undefined,
       fewShotExamples: context.fewShotExamples,
+      semanticSummary: context.semanticSummary,
+      projectStyle: context.projectStyle,
+      projectGuidelines: context.projectGuidelines,
     };
 
     // Call the legacy provider with diff analysis

@@ -17,27 +17,14 @@ Ce plan traduit les recommandations de `GENERATE_AI_AUDIT.md` en travaux aligné
   ✅ Implémenté : Création de `src/domain/services/ASTDiffAnalyzer.ts` avec interface `IASTDiffAnalyzer` et types (`Refactoring`, `StructuralChange`, `SemanticImpact`). Implémentation `TreeSitterASTDiffAnalyzer` dans `src/infrastructure/services/ast/`. Intégration dans `DiffAnalyzer` avec méthode `setASTAnalyzer()` et fusion des analyses AST et ligne. Support gracieux si Tree-Sitter n'est pas disponible (fallback sur analyse ligne). **Note** : Nécessite d'ajouter les dépendances `tree-sitter`, `tree-sitter-typescript`, `tree-sitter-javascript` dans `package.json`.
 - [x] **Infrastructure Tree-Sitter**  
   ✅ Implémenté : Création de `ASTAnalyzerFactory` dans `src/infrastructure/factories/`. Intégration dans `ServiceRegistry` avec identifiant `ServiceIdentifiers.ASTDiffAnalyzer` (singleton). Modification de `GenerateAICommitUseCase` pour accepter `IASTDiffAnalyzer` via DI et le configurer sur `DiffAnalyzer`. Documentation dans `docs/TREE_SITTER_SETUP.md`. **Note** : Les dépendances `tree-sitter`, `tree-sitter-typescript`, `tree-sitter-javascript` doivent être ajoutées dans `package.json` (fichier protégé, nécessite validation mainteneur). Le système fonctionne sans ces dépendances (fallback gracieux).
-- [ ] **Semantic diff summarization**  
-  Implémenter `summarizeDiffSemantics()` dans `GenerateAICommitUseCase`, ajouter le `<semantic_summary>` au prompt utilisateur et définir les seuils dans `shared/constants/limits.ts`.
+- [x] **Semantic diff summarization**  
+  ✅ Implémenté : Ajout des seuils `SEMANTIC_SUMMARY_THRESHOLD` (0.5) et `MAX_SEMANTIC_SUMMARY_TOKENS` (300) dans `limits.ts`. Implémentation de `summarizeDiffSemantics()` dans `GenerateAICommitUseCase` qui génère un résumé sémantique pour les diffs >50% de `MAX_DIFF_LENGTH`. Ajout de `<semantic_summary>` dans `generateUserPrompt()` et transmission via `AIGenerationContext` et `CommitContext` à tous les providers. Le résumé est généré avec température 0.6 pour plus de créativité et focus sur l'architecture plutôt que les détails techniques.
 
 ## Priorité 3 · Vérification & contexte (Semaine 3)
 
-- [ ] **Self-verification loop**  
-  Après génération du commit, déclencher un prompt de vérification (format JSON) et réinjecter les améliorations dans le DTO avant retour UI.
-- [ ] **ProjectStyleAnalyzer**  
-  Créer `src/domain/services/ProjectStyleAnalyzer.ts`, exposer la dépendance git via `IGitRepository`, puis enrichir `GenerateAICommitUseCase` pour intégrer `<project_style>` dans les prompts.
-- [ ] **Support des guidelines projet**  
-  Ajouter `src/utils/projectGuidelines.ts`, charger `.claude/commands/commit.md` ou équivalents et inclure le contenu dans le prompt s’il existe.
-
-## Priorité 4 · Qualité & instrumentation (Semaine 4)
-
-- [ ] **Metrics & logging**  
-  Implémenter `CommitQualityMetrics` dans `src/evaluation/CommitQualityMetrics.ts` et un logger `logCommitGeneration()` qui écrit dans `.gortex/quality-metrics.jsonl`.
-- [ ] **Boucle de feedback utilisateur**  
-  Ajouter dans la présentation (Ink) une étape de notation/retour après génération, remonter les données aux métriques puis persister.
-
-## Suivi & risques
-
-- [ ] Documenter les nouveaux workflows dans `docs/` (architecture + READMEs) dès qu’une phase est livrée.
-- [ ] Mesurer la latence induite par CoT/self-verification et ajuster l’activation dynamique selon la confiance calculée.
-
+- [x] **Self-verification loop**  
+  ✅ Implémenté : Ajout de l'interface `VerificationResult` et des fonctions `generateVerificationSystemPrompt()` / `generateVerificationUserPrompt()` dans `commit-message.ts`. Implémentation de la boucle de vérification dans `GenerateAICommitUseCase` qui évalue automatiquement la qualité du commit généré selon 5 critères (subject sémantique, body explicatif, symboles clés mentionnés, type cohérent, clarté). Si des améliorations sont proposées (`improvedSubject` ou `improvedBody`), elles sont appliquées automatiquement et la confiance est réduite de 10% (x0.9). Gestion d'erreur avec fallback gracieux si la vérification échoue.
+- [x] **ProjectStyleAnalyzer**  
+  ✅ Implémenté : Création de l'interface `IProjectStyleAnalyzer` et du type `ProjectStyle` dans `src/domain/services/ProjectStyleAnalyzer.ts`. Implémentation `ProjectStyleAnalyzerImpl` dans `src/infrastructure/services/` qui analyse l'historique Git (100 commits par défaut) pour extraire : types préférés (top 3), longueur moyenne des subjects, scopes communs, niveau de détail (detailed/concise), templates de subjects, conformité aux conventional commits. Enregistrement dans `ServiceRegistry` comme singleton. Intégration dans `GenerateAICommitUseCase` avec fallback gracieux si l'analyse échoue. Ajout de `<project_style>` dans `generateUserPrompt()` avec toutes les métriques. Transmission via `AIGenerationContext` et `CommitContext` à tous les providers (Ollama, Mistral, OpenAI).
+- [x] **Support des guidelines projet**  
+  ✅ Implémenté : Création de `src/utils/projectGuidelines.ts` avec `loadProjectCommitGuidelines()` qui cherche les fichiers dans l'ordre de priorité : `.claude/commands/commit.md`, `.gortex/commit-guidelines.md`, `COMMIT_GUIDELINES.md`, `.github/COMMIT_GUIDELINES.md`. Intégration dans `GenerateAICommitUseCase` avec chargement automatique depuis le répertoire de travail du projet Git. Ajout de `projectGuidelines` dans `AIGenerationContext` et `CommitContext`. Ajout de la section `<project_commit_guidelines>` dans `generateUserPrompt()` avec indication que ces règles priment sur les instructions génériques. Transmission via tous les adaptateurs et providers (Ollama, Mistral, OpenAI). Gestion d'erreur avec fallback gracieux si le chargement échoue.

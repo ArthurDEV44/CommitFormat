@@ -7,18 +7,32 @@ import { selectRelevantExamples } from "../../ai/examples/commit-samples.js";
 import {
   generateReasoningSystemPrompt,
   generateReasoningUserPrompt,
+  generateVerificationSystemPrompt,
+  generateVerificationUserPrompt,
   type ReasoningAnalysis,
+  type VerificationResult,
 } from "../../ai/prompts/commit-message.js";
+import { CommitMessage } from "../../domain/entities/CommitMessage.js";
 import type {
   AIGenerationContext,
   IAIProvider,
 } from "../../domain/repositories/IAIProvider.js";
 import type { IGitRepository } from "../../domain/repositories/IGitRepository.js";
 import type { IASTDiffAnalyzer } from "../../domain/services/ASTDiffAnalyzer.js";
-import { DiffAnalyzer } from "../../domain/services/DiffAnalyzer.js";
+import {
+  type DiffAnalysis,
+  DiffAnalyzer,
+  type ModifiedSymbol,
+} from "../../domain/services/DiffAnalyzer.js";
+import type {
+  IProjectStyleAnalyzer,
+  ProjectStyle,
+} from "../../domain/services/ProjectStyleAnalyzer.js";
+import { CommitSubject } from "../../domain/value-objects/CommitSubject.js";
 import { GitRepositoryImpl } from "../../infrastructure/repositories/GitRepositoryImpl.js";
 import { getCommitTypeValues } from "../../shared/constants/commit-types.js";
 import { SIZE_LIMITS } from "../../shared/constants/limits.js";
+import { loadProjectCommitGuidelines } from "../../utils/projectGuidelines.js";
 import type { AIGenerationResultDTO } from "../dto/AIGenerationDTO.js";
 import { CommitMessageMapper } from "../mappers/CommitMessageMapper.js";
 
@@ -33,6 +47,7 @@ export class GenerateAICommitUseCase {
   constructor(
     private readonly gitRepository: IGitRepository,
     astAnalyzer?: IASTDiffAnalyzer,
+    private readonly projectStyleAnalyzer?: IProjectStyleAnalyzer,
   ) {
     this.diffAnalyzer = new DiffAnalyzer();
     // Configure AST analyzer if available
@@ -103,6 +118,53 @@ export class GenerateAICommitUseCase {
       // Select relevant few-shot examples based on analysis
       const fewShotExamples = selectRelevantExamples(diffAnalysis, 5);
 
+      // Analyze project style from commit history
+      let projectStyle: ProjectStyle | undefined;
+      if (this.projectStyleAnalyzer) {
+        try {
+          projectStyle = await this.projectStyleAnalyzer.analyzeProjectStyle(
+            this.gitRepository,
+            100,
+          );
+        } catch (error) {
+          // If style analysis fails, continue without it (graceful degradation)
+          console.warn(
+            `Project style analysis failed: ${error instanceof Error ? error.message : String(error)}. Continuing without project style.`,
+          );
+        }
+      }
+
+      // Load project-specific commit guidelines
+      let projectGuidelines: string | undefined;
+      try {
+        // Use process.cwd() as the working directory (where the git repository is)
+        projectGuidelines = await loadProjectCommitGuidelines(process.cwd());
+      } catch (error) {
+        // If guidelines loading fails, continue without them (graceful degradation)
+        console.warn(
+          `Failed to load project commit guidelines: ${error instanceof Error ? error.message : String(error)}. Continuing without guidelines.`,
+        );
+      }
+
+      // Semantic diff summarization for large diffs
+      let semanticSummary: string | undefined;
+      const summaryThreshold =
+        SIZE_LIMITS.MAX_DIFF_LENGTH * SIZE_LIMITS.SEMANTIC_SUMMARY_THRESHOLD;
+      if (diffForAI.length > summaryThreshold) {
+        try {
+          semanticSummary = await this.summarizeDiffSemantics(
+            diffForAI,
+            diffAnalysis,
+            request.provider,
+          );
+        } catch (error) {
+          // If summarization fails, continue without it (graceful degradation)
+          console.warn(
+            `Semantic diff summarization failed: ${error instanceof Error ? error.message : String(error)}. Continuing without summary.`,
+          );
+        }
+      }
+
       // Chain-of-Thought Step 1: Generate structured reasoning analysis
       let reasoningAnalysis: ReasoningAnalysis | undefined;
       try {
@@ -159,10 +221,86 @@ export class GenerateAICommitUseCase {
           : undefined,
         // Add few-shot examples for better guidance
         fewShotExamples,
+        // Add semantic summary if available (for large diffs)
+        semanticSummary,
+        // Add project style analysis if available
+        projectStyle,
+        // Add project-specific guidelines if available
+        projectGuidelines,
       };
 
       // Chain-of-Thought Step 2: Generate commit message using the reasoning analysis
-      const result = await request.provider.generateCommitMessage(aiContext);
+      let result = await request.provider.generateCommitMessage(aiContext);
+      let _iterationsCount = 1;
+
+      // Self-Verification Loop: Let AI evaluate and improve its own proposal
+      try {
+        const verificationSystemPrompt = generateVerificationSystemPrompt();
+        const verificationUserPrompt = generateVerificationUserPrompt(
+          {
+            type: result.message.getType().toString(),
+            scope: result.message.getScope().isEmpty()
+              ? undefined
+              : result.message.getScope().toString(),
+            subject: result.message.getSubject().toString(),
+            body: result.message.getBody(),
+          },
+          diffAnalysis,
+          reasoningAnalysis?.suggestedType,
+        );
+
+        const verificationResponse = await request.provider.generateText(
+          verificationSystemPrompt,
+          verificationUserPrompt,
+          {
+            temperature: 0.4, // Lower temperature for more structured verification
+            maxTokens: 500,
+            format: "json",
+          },
+        );
+
+        // Parse verification result
+        const cleanedVerification = verificationResponse
+          .trim()
+          .replace(/```json\s*/g, "")
+          .replace(/```\s*/g, "")
+          .trim();
+
+        const verification: VerificationResult = JSON.parse(
+          cleanedVerification,
+        ) as VerificationResult;
+
+        // If improvements are suggested, apply them
+        if (
+          !verification.isGoodQuality &&
+          (verification.improvedSubject || verification.improvedBody)
+        ) {
+          // Re-create CommitMessage with improvements
+          const improvedMessage = CommitMessage.create({
+            type: result.message.getType(),
+            subject: verification.improvedSubject
+              ? CommitSubject.create(verification.improvedSubject)
+              : result.message.getSubject(),
+            scope: result.message.getScope(),
+            body: verification.improvedBody ?? result.message.getBody(),
+            breaking: result.message.isBreaking(),
+            breakingChangeDescription:
+              result.message.getBreakingChangeDescription(),
+          });
+
+          result = {
+            message: improvedMessage,
+            confidence: (result.confidence ?? 0.8) * 0.9, // Reduce confidence slightly
+            reasoning: verification.reasoning,
+          };
+          _iterationsCount = 2;
+        }
+      } catch (error) {
+        // If verification fails, continue with original result (graceful degradation)
+        console.warn(
+          `Self-verification failed: ${error instanceof Error ? error.message : String(error)}. Continuing with original commit message.`,
+        );
+      }
 
       // Convert to DTO
       const commitDTO = CommitMessageMapper.toDTO(result.message);
@@ -184,6 +322,62 @@ export class GenerateAICommitUseCase {
             ? error.message
             : "Unknown error during AI generation",
       };
+    }
+  }
+
+  /**
+   * Summarizes a large diff semantically before sending to AI
+   * This helps the AI understand the "why" and architectural impact
+   * rather than getting lost in implementation details
+   */
+  private async summarizeDiffSemantics(
+    diff: string,
+    analysis: DiffAnalysis,
+    provider: IAIProvider,
+  ): Promise<string> {
+    const summarySystemPrompt = `Tu es un expert en analyse architecturale de code.
+Ta tâche est de résumer des changements de code au niveau SÉMANTIQUE, en te concentrant sur l'architecture et l'intention plutôt que sur les détails d'implémentation.
+
+Génère un résumé structuré et concis (${SIZE_LIMITS.MAX_SEMANTIC_SUMMARY_TOKENS} tokens maximum) qui couvre:
+1. QUOI: Les composants/systèmes créés ou modifiés (noms de classes, services, modules)
+2. POURQUOI: L'intention architecturale derrière ces changements
+3. COMMENT: Les transformations clés au niveau conceptuel
+4. IMPACT: Les conséquences sur le reste du système
+
+Sois concis, focus sur l'ARCHITECTURE, pas les détails techniques.`;
+
+    const summaryUserPrompt = `Résume ces changements de code au niveau SÉMANTIQUE:
+
+ANALYSE AUTOMATIQUE:
+- Symboles modifiés: ${analysis.modifiedSymbols.map((s: ModifiedSymbol) => s.name).join(", ") || "Aucun"}
+- Pattern dominant: ${analysis.changePatterns[0]?.description || "N/A"}
+- Complexité: ${analysis.complexity}
+- Fichiers modifiés: ${analysis.summary.filesChanged}
+
+DIFF COMPLET:
+\`\`\`
+${diff.substring(0, Math.floor(SIZE_LIMITS.MAX_DIFF_LENGTH * 0.8))}${diff.length > Math.floor(SIZE_LIMITS.MAX_DIFF_LENGTH * 0.8) ? "\n[... diff tronqué ...]" : ""}
+\`\`\`
+
+Génère un résumé structuré en 3-5 points concis qui capture l'essence architecturale de ces changements.`;
+
+    try {
+      const summaryResponse = await provider.generateText(
+        summarySystemPrompt,
+        summaryUserPrompt,
+        {
+          temperature: 0.6, // Slightly higher for more creative summarization
+          maxTokens: SIZE_LIMITS.MAX_SEMANTIC_SUMMARY_TOKENS,
+          format: "text",
+        },
+      );
+
+      return summaryResponse.trim();
+    } catch (error) {
+      // If summarization fails, return undefined (will be handled by caller)
+      throw new Error(
+        `Failed to generate semantic summary: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 }
