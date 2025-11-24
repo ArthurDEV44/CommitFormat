@@ -14,6 +14,7 @@ import type {
   IAIProvider,
 } from "../../domain/repositories/IAIProvider.js";
 import type { IGitRepository } from "../../domain/repositories/IGitRepository.js";
+import type { IASTDiffAnalyzer } from "../../domain/services/ASTDiffAnalyzer.js";
 import { DiffAnalyzer } from "../../domain/services/DiffAnalyzer.js";
 import { GitRepositoryImpl } from "../../infrastructure/repositories/GitRepositoryImpl.js";
 import { getCommitTypeValues } from "../../shared/constants/commit-types.js";
@@ -29,8 +30,15 @@ export interface GenerateAICommitRequest {
 export class GenerateAICommitUseCase {
   private readonly diffAnalyzer: DiffAnalyzer;
 
-  constructor(private readonly gitRepository: IGitRepository) {
+  constructor(
+    private readonly gitRepository: IGitRepository,
+    astAnalyzer?: IASTDiffAnalyzer,
+  ) {
     this.diffAnalyzer = new DiffAnalyzer();
+    // Configure AST analyzer if available
+    if (astAnalyzer) {
+      this.diffAnalyzer.setASTAnalyzer(astAnalyzer);
+    }
   }
 
   /**

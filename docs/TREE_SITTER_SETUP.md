@@ -28,5 +28,7 @@ Si Tree-Sitter n'est pas disponible, le système utilise automatiquement l'analy
 
 - **Domaine** : `src/domain/services/ASTDiffAnalyzer.ts` - Interface et types
 - **Infrastructure** : `src/infrastructure/services/ast/TreeSitterASTDiffAnalyzer.ts` - Implémentation Tree-Sitter
-- **Intégration** : `DiffAnalyzer.setASTAnalyzer()` pour activer l'analyse AST
+- **Factory** : `src/infrastructure/factories/ASTAnalyzerFactory.ts` - Factory pour créer l'analyseur AST
+- **DI** : Intégré dans `ServiceRegistry` avec identifiant `ServiceIdentifiers.ASTDiffAnalyzer`
+- **Intégration** : `DiffAnalyzer.setASTAnalyzer()` pour activer l'analyse AST, injecté automatiquement dans `GenerateAICommitUseCase`
 

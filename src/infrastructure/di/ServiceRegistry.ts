@@ -12,11 +12,13 @@ import { PushOperationsUseCase } from "../../application/use-cases/PushOperation
 import { StageFilesUseCase } from "../../application/use-cases/StageFilesUseCase.js";
 import type { IAIProvider } from "../../domain/repositories/IAIProvider.js";
 import type { IGitRepository } from "../../domain/repositories/IGitRepository.js";
+import type { IASTDiffAnalyzer } from "../../domain/services/ASTDiffAnalyzer.js";
 import type { AIConfig } from "../../types.js";
 import {
   AIProviderFactory,
   type AIProviderType,
 } from "../factories/AIProviderFactory.js";
+import { ASTAnalyzerFactory } from "../factories/ASTAnalyzerFactory.js";
 import { RepositoryFactory } from "../factories/RepositoryFactory.js";
 import { DIContainer } from "./DIContainer.js";
 
@@ -42,6 +44,9 @@ export const ServiceIdentifiers = {
   // Configuration
   AIConfig: "AIConfig",
   WorkingDirectory: "WorkingDirectory",
+
+  // AST Analyzer
+  ASTDiffAnalyzer: "IASTDiffAnalyzer",
 } as const;
 
 /**
@@ -95,6 +100,9 @@ export class ServiceRegistry {
 
     // Register AI providers
     ServiceRegistry.registerAIProviders(container, options);
+
+    // Register AST analyzer
+    ServiceRegistry.registerASTAnalyzer(container);
 
     // Register use cases
     ServiceRegistry.registerUseCases(container);
@@ -159,6 +167,18 @@ export class ServiceRegistry {
   }
 
   /**
+   * Registers AST analyzer services
+   * @param container DI container
+   */
+  private static registerASTAnalyzer(container: DIContainer): void {
+    // Register AST analyzer as singleton (Tree-Sitter parser can be reused)
+    // Returns undefined if Tree-Sitter is not available (graceful degradation)
+    container.registerSingleton(ServiceIdentifiers.ASTDiffAnalyzer, () =>
+      ASTAnalyzerFactory.createASTDiffAnalyzerIfAvailable(),
+    );
+  }
+
+  /**
    * Registers use case services
    * @param container DI container
    */
@@ -178,6 +198,7 @@ export class ServiceRegistry {
       (c) =>
         new GenerateAICommitUseCase(
           c.resolve<IGitRepository>(ServiceIdentifiers.GitRepository),
+          c.tryResolve<IASTDiffAnalyzer>(ServiceIdentifiers.ASTDiffAnalyzer),
         ),
     );
 

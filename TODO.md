@@ -15,8 +15,8 @@ Ce plan traduit les recommandations de `GENERATE_AI_AUDIT.md` en travaux aligné
 
 - [x] **ASTDiffAnalyzer**  
   ✅ Implémenté : Création de `src/domain/services/ASTDiffAnalyzer.ts` avec interface `IASTDiffAnalyzer` et types (`Refactoring`, `StructuralChange`, `SemanticImpact`). Implémentation `TreeSitterASTDiffAnalyzer` dans `src/infrastructure/services/ast/`. Intégration dans `DiffAnalyzer` avec méthode `setASTAnalyzer()` et fusion des analyses AST et ligne. Support gracieux si Tree-Sitter n'est pas disponible (fallback sur analyse ligne). **Note** : Nécessite d'ajouter les dépendances `tree-sitter`, `tree-sitter-typescript`, `tree-sitter-javascript` dans `package.json`.
-- [ ] **Infrastructure Tree-Sitter**  
-  Introduire l’adaptateur correspondant dans `src/infrastructure/services/ast/` + wiring DI (ServiceRegistry) et gérer la dépendance `tree-sitter` dans `package.json` (à valider avec mainteneur car fichier protégé).
+- [x] **Infrastructure Tree-Sitter**  
+  ✅ Implémenté : Création de `ASTAnalyzerFactory` dans `src/infrastructure/factories/`. Intégration dans `ServiceRegistry` avec identifiant `ServiceIdentifiers.ASTDiffAnalyzer` (singleton). Modification de `GenerateAICommitUseCase` pour accepter `IASTDiffAnalyzer` via DI et le configurer sur `DiffAnalyzer`. Documentation dans `docs/TREE_SITTER_SETUP.md`. **Note** : Les dépendances `tree-sitter`, `tree-sitter-typescript`, `tree-sitter-javascript` doivent être ajoutées dans `package.json` (fichier protégé, nécessite validation mainteneur). Le système fonctionne sans ces dépendances (fallback gracieux).
 - [ ] **Semantic diff summarization**  
   Implémenter `summarizeDiffSemantics()` dans `GenerateAICommitUseCase`, ajouter le `<semantic_summary>` au prompt utilisateur et définir les seuils dans `shared/constants/limits.ts`.
 
