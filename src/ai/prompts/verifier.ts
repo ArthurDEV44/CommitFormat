@@ -109,7 +109,7 @@ export function generateVerifierUserPrompt(
   // Limiter le diff pour ne pas dépasser les tokens
   const truncatedDiff =
     diff.length > 8000
-      ? diff.substring(0, 8000) + "\n... [diff tronqué]"
+      ? `${diff.substring(0, 8000)}\n... [diff tronqué]`
       : diff;
   parts.push(truncatedDiff);
   parts.push("```");
@@ -117,9 +117,7 @@ export function generateVerifierUserPrompt(
 
   parts.push("ANALYSE STRUCTURÉE (référence):");
   parts.push(`- Fichiers: ${analysis.summary.filesChanged}`);
-  parts.push(
-    `- Pattern: ${analysis.changePatterns[0]?.type ?? "unknown"}`,
-  );
+  parts.push(`- Pattern: ${analysis.changePatterns[0]?.type ?? "unknown"}`);
 
   if (analysis.modifiedSymbols.length > 0) {
     parts.push(
@@ -129,9 +127,7 @@ export function generateVerifierUserPrompt(
       parts.push(`  * ${sym.name} (${sym.type})`);
     });
     if (analysis.modifiedSymbols.length > 10) {
-      parts.push(
-        `  ... et ${analysis.modifiedSymbols.length - 10} autres`,
-      );
+      parts.push(`  ... et ${analysis.modifiedSymbols.length - 10} autres`);
     }
   }
   parts.push("");
@@ -140,9 +136,7 @@ export function generateVerifierUserPrompt(
   parts.push(
     "1. HALLUCINATION: Le commit mentionne-t-il des composants absents du diff?",
   );
-  parts.push(
-    "2. OMISSION: Le commit omet-il des symboles majeurs du diff?",
-  );
+  parts.push("2. OMISSION: Le commit omet-il des symboles majeurs du diff?");
   parts.push(
     "3. EXACTITUDE: Le type et la description correspondent-ils au pattern détecté?",
   );
