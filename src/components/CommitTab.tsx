@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useStageFiles } from "../infrastructure/di/hooks.js";
 import { colors, commitIcons, icons } from "../theme/colors.js";
 import type { AIProvider, CommitConfig } from "../types.js";
-import { AICommitGenerator } from "./AICommitGenerator.js";
+import { AgenticAICommitGenerator } from "./AgenticAICommitGenerator.js";
 import { BranchSelector } from "./BranchSelector.js";
 import { CommitConfirmation } from "./CommitConfirmation.js";
 import { CommitMessageBuilder } from "./CommitMessageBuilder.js";
@@ -205,9 +205,9 @@ export const CommitTab = ({ config, onWorkflowStateChange }: Props) => {
           <CommitModeSelector config={config} onComplete={handleModeComplete} />
         )}
 
-        {/* Step 5a: AI Generation */}
+        {/* Step 5a: AI Generation (Agentic with Reflection Pattern) */}
         {step === "ai-generate" && aiProvider && (
-          <AICommitGenerator
+          <AgenticAICommitGenerator
             provider={aiProvider}
             config={config}
             onComplete={handleAIComplete}
